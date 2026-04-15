@@ -35,13 +35,13 @@
                 </div>
             </aside>
 
-            <div>
+            <div class="contacts-page-wrapper">
                 <header>
                     <h1>Kanban Project Management Tool</h1>
                 </header>
 
                 <main>
-                    <article class="contacts">
+                    <article class="contacts" id="contactsPanel">
                         <section class="contacts-sidebar">
                             <div class="contacts-sidebar__btn">
                                 <button class="contacts-sidebar__add-btn" id="addNewContact">Add new contact<img src="assets/icons/person-add.png" alt="Add Contact"></button>
@@ -126,8 +126,9 @@
                                 <h1>Contacts</h1>
                                 <hr class="contact-content__divider">
                                 <p>Better with a team</p>
+                                <button class="contacts__back-btn" id="contactsBackBtn" aria-label="Back to contacts"></button>
                             </div>
-                            <div class="contact-content__info">
+                            <div class="contact-content__info" id="contactInfo">
                                 <div class="contact-card">
                                     <div class="contact-card__avatar">AM</div>
                                     <div class="contact-card__user-info">
@@ -193,6 +194,7 @@
         </div>
 
         <script>
+            // --- Add Contact Dialog ---
             const overlay = document.getElementById('addContactOverlay');
             const openBtn = document.getElementById('addNewContact');
             const closeBtn = document.getElementById('closeAddContactDialog');
@@ -212,6 +214,65 @@
                     closeAddContactDialog();
                 }
             });
+
+            // --- Contact Detail Panel ---
+            const contactsPanel = document.getElementById('contactsPanel');
+            const contactInfo = document.getElementById('contactInfo');
+            const backBtn = document.getElementById('contactsBackBtn');
+            const contactItems = document.querySelectorAll('.contact-item');
+
+            function openContactDetail(item) {
+                // Aktiven Kontakt markieren
+                for (let i = 0; i < contactItems.length; i++) {
+                    contactItems[i].classList.remove('contact-item--active');
+            }
+                item.classList.add('contact-item--active');
+
+                // Detail-Bereich befüllen
+                const name = item.querySelector('.contact-item__name').textContent;
+                const mail = item.querySelector('.contact-item__mail').textContent;
+                const initials = item.querySelector('.contact-item__avatar').textContent;
+
+                contactInfo.innerHTML = `
+                    <div class="contact-card">
+                        <div class="contact-card__avatar">${initials}</div>
+                        <div class="contact-card__user-info">
+                            <h2 class="contact-card__name">${name}</h2>
+                            <div class="contact-card__btn-container">
+                                <button class="contact-card__btn"><img src="assets/icons/edit.png" alt="Edit Contact">Edit</button>
+                                <button class="contact-card__btn"><img src="assets/icons/delete.png" alt="Delete Contact">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="contact-card__info">
+                        <h3>Contact Information</h3>
+                        <div class="contact-card__information">
+                            <span><strong>Email</strong></span>
+                            <a href="mailto:${mail}">${mail}</a>
+                        </div>
+                        <div class="contact-card__information">
+                            <span><strong>Phone</strong></span>
+                            <a href="tel:+49123456789">+49 123 456789</a>
+                        </div>
+                    </div>
+                `;
+
+                // Detail sichtbar machen
+                contactInfo.classList.add('contact-content__info--visible');
+
+                // Auf Mobile: zum Detail-Panel wechseln
+                contactsPanel.classList.add('contacts--detail-open');
+            }
+
+            function closeContactDetail() {
+                contactsPanel.classList.remove('contacts--detail-open');
+            }
+
+            contactItems.forEach(item => {
+                item.addEventListener('click', () => openContactDetail(item));
+            });
+
+            backBtn.addEventListener('click', closeContactDetail);
         </script>
     </body>
 </html>

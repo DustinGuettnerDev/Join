@@ -1,6 +1,14 @@
+.contacts-page-wrapper {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 main {
     font-family: inter, sans-serif;
     background-color: rgba(246, 247, 248, 1);
+    flex: 1;
 }
 
 /* -- Contacts Page --- */
@@ -152,7 +160,6 @@ main {
 .contact-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
     flex: 1;
     height: 100%;
 }
@@ -450,4 +457,126 @@ main {
 
 .add-contact__btn--create:hover {
     background-color: rgba(41, 171, 226, 1);
+}
+
+/* Aktiver Kontakt in der Liste */
+.contact-item--active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.contact-item--active:hover {
+    background-color: var(--primary-color);
+}
+
+.contact-item--active .contact-item__avatar {
+    border: 3px solid white;
+}
+
+/* Detail-Bereich: standardmäßig ausgeblendet */
+.contact-content__info {
+    display: none;
+}
+
+/* Detail wird eingeblendet wenn Kontakt ausgewählt */
+.contact-content__info--visible {
+    display: flex;
+}
+
+/* Zurück-Button: nur auf Mobile sichtbar */
+.contacts__back-btn {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+    flex-shrink: 0;
+    position: relative;
+}
+
+/* CSS-Pfeil für den Zurück-Button */
+.contacts__back-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    border-left: 3px solid var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    transform: translate(-30%, -50%) rotate(45deg);
+}
+
+/* ===== Mobile Layout (max-width: 768px) ===== */
+   
+
+@media (max-width: 768px) {
+    /* Zurück-Button einblenden */
+    .contacts__back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Contacts-Container: kein flex nebeneinander */
+    .contacts {
+        flex-direction: column;
+    }
+
+    /* Aktiver Kontakt auf Mobile nicht markieren */
+    .contact-item--active {
+        background-color: transparent;
+        color: inherit;
+    }
+
+    .contact-item--active:hover {
+        background-color: #f2f2f2;
+    }
+
+    .contact-item--active .contact-item__avatar {
+        border: none;
+    }
+
+    .contact-item--active .contact-item__mail {
+        color: blue;
+    }
+
+    /* Sidebar: volle Breite, kein Border, keine fixe Höhe */
+    .contacts .contacts-sidebar {
+        width: 100%;
+        height: calc(100vh - 80px);
+        border-right: none;
+    }
+
+    /* Content-Panel: standardmäßig versteckt auf Mobile */
+    .contacts .contact-content {
+        display: none;
+    }
+
+    /* State: Detail geöffnet → Sidebar ausblenden */
+    .contacts--detail-open .contacts-sidebar {
+        display: none;
+    }
+
+    /* State: Detail geöffnet → Content-Panel einblenden */
+    .contacts--detail-open .contact-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: 20px;
+    }
+
+    /* Content Header auf Mobile kompakter */
+    .contacts--detail-open .contact-content__header {
+        padding: 40px 0 20px 0;
+        flex-wrap: wrap;
+    }
+
+    /* State: Detail geöffnet → Info-Bereich immer sichtbar (kein --visible nötig auf Mobile) */
+    .contacts--detail-open .contact-content__info {
+        display: flex;
+        padding: 0;
+    }
 }
