@@ -18,7 +18,7 @@
 
 .summary {
     display: flex;
-    gap: 32px;
+    gap: 48px;
 }
 
 .welcoming {
@@ -26,10 +26,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    text-align: right;
     text-align: center;
-    flex: 1;
     hyphens: auto;
+    overflow-wrap: anywhere;
+}
+
+.welcoming__greeting-name {
+    max-width: 11ch;
 }
 
 .tasks {
@@ -37,7 +40,6 @@
     grid-template-columns: repeat(6, 1fr);
     gap: 40px;
     flex: 1.4;
-    min-width: 350px;
 }
 
 .tasks a span {
@@ -52,7 +54,6 @@
 .tasks__awaiting-feedback {
     background-color: white;
     height: 160px;
-    border-radius: 8px;
     border-radius: 30px;
 }
 
@@ -132,9 +133,9 @@
 .tasks__in-progress,
 .tasks__awaiting-feedback {
     transition:
-        background-color 0.1s ease-out,
-        transform 0.1s ease-out,
-        color 0.1s ease-out;
+        background-color 125ms ease-in-out,
+        transform 125ms ease-in-out,
+        color 125ms ease-in-out;
 }
 
 .tasks__to-do *,
@@ -158,23 +159,39 @@
     box-shadow: 0px 3px 7px rgba(0, 0, 0, 0.5);
 }
 
+.tasks__to-do-imgs,
+.tasks__done-imgs {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
 .tasks__to-do-icon--inverted,
 .tasks__done-icon--inverted {
-    display: none;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    transition: opacity 125ms ease-in-out;
 }
 
 .tasks__to-do:hover .tasks__to-do-icon,
 .tasks__done:hover .tasks__done-icon {
-    display: none;
+    opacity: 0;
 }
 
 .tasks__to-do:hover .tasks__to-do-icon--inverted,
 .tasks__done:hover .tasks__done-icon--inverted {
-    display: block;
+    opacity: 1;
 }
 
 .tasks__urgent:hover .tasks__separator {
     background-color: white;
+}
+
+@media (min-width: 1201px) and (max-width: 1300px) {
+    .tasks {
+        min-width: 460px;
+    }
 }
 
 @media (max-width: 1200px) {
@@ -189,6 +206,35 @@
 
     .tasks {
         flex: 2;
+    }
+}
+
+@media (max-width: 1000px) {
+    .tasks {
+        min-width: 350px;
+    }
+}
+
+@media (min-width: 1001px) and (max-width: 1100px) {
+    .tasks {
+        min-width: 440px;
+    }
+}
+
+@media (min-width: 851px) and (max-width: 1000px) {
+    .welcoming__greeting-name {
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    .welcoming__greeting {
+        font-size: 26px;
+        font-weight: 400;
+    }
+
+    .welcoming__greeting-name,
+    .welcoming__greeting {
+        max-width: 8ch;
     }
 }
 
@@ -243,9 +289,6 @@
         height: 140px;
     }
 
-    .headline1__separator {
-        left: 81px;
-    }
     .headline1__separator {
         left: 61px;
     }

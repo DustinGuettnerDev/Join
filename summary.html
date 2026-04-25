@@ -28,16 +28,20 @@
                     <section class="summary">
                         <section class="tasks">
                             <a href="boards.html" class="tasks__to-do tasks__cells--responsive">
-                                <img class="tasks__icon tasks__to-do-icon" src="assets/icons/summary/inactive/todo.svg" alt="" />
-                                <img class="tasks__icon tasks__to-do-icon--inverted" src="assets/icons/summary/active/todo-active.svg" alt="" />
+                                <div class="tasks__to-do-imgs">
+                                    <img class="tasks__icon tasks__to-do-icon" src="assets/icons/summary/inactive/todo.svg" alt="" />
+                                    <img class="tasks__icon tasks__to-do-icon--inverted" src="assets/icons/summary/active/todo-active.svg" alt="" />
+                                </div>
                                 <div class="tasks__to-do-count">
                                     <span class="fs-xxxlarge-bold fs-xlarge-bold-responsive">1</span>
                                     <span class="fs-medium-regular fc-grey fs-small-regular-responsive">To-do</span>
                                 </div>
                             </a>
                             <a href="boards.html" class="tasks__done tasks__cells--responsive">
-                                <img class="tasks__icon tasks__done-icon" src="assets/icons/summary/inactive/done.svg" alt="" />
-                                <img class="tasks__icon tasks__done-icon--inverted" src="assets/icons/summary/active/done-active.svg" alt="" />
+                                <div class="tasks__done-imgs">
+                                    <img class="tasks__icon tasks__done-icon" src="assets/icons/summary/inactive/done.svg" alt="" />
+                                    <img class="tasks__icon tasks__done-icon--inverted" src="assets/icons/summary/active/done-active.svg" alt="" />
+                                </div>
                                 <div class="tasks__done-count">
                                     <span class="fs-xxxlarge-bold fs-xlarge-bold-responsive">1</span>
                                     <span class="fs-medium-regular fc-grey fs-small-regular-responsive">Done</span>
@@ -81,11 +85,10 @@
                         </section>
 
                         <section class="welcoming">
-                            <div id="js-welcoming-greeting" class="fs-xlarge-medium fs-large2-regular-responsive">
-                                <span>Good</span>
-                                <span id="js-greeting-morning">morning</span>
+                            <div id="js-welcoming-greeting" class="welcoming__greeting fs-xlarge-medium fs-large2-regular-responsive">
+                                <span id="js-greeting-morning">Good morning</span>
                             </div>
-                            <div id="js-greeting-name" class="fs-xxxlarge-bold fc-lightblue fs-xlarge-bold-responsive"></div>
+                            <div id="js-greeting-name" class="welcoming__greeting-name fs-xxxlarge-bold fc-lightblue fs-xlarge-bold-responsive" lang="de"></div>
                         </section>
                     </section>
                 </main>
