@@ -5,12 +5,13 @@
 const firebaseConfig = {
     apiKey: "AIzaSyDqKUIXrAGfDTsbymcVdJ2w5ATaApioOv8",
     authDomain: "join-5bd8d.firebaseapp.com",
-    databaseURL: "https://join-5bd8d-default-rtdb.europe-west1.firebasedatabase.app",
+    databaseURL:"https://join-5bd8d-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "join-5bd8d",
     storageBucket: "join-5bd8d.firebasestorage.app",
     messagingSenderId: "404471964373",
     appId: "1:404471964373:web:584fe9ea95cd3476aab85c",
 };
+
 /**
  * Initializes the Firebase application with the provided configuration and sets up a reference to the Realtime Database.
  * This allows the application to interact with the Firebase services, such as authentication and database operations.
@@ -19,30 +20,41 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 /**
- * Login function that retrieves the email and password from the input fields,
- * checks the "users" node in the Firebase Realtime Database for a matching email and password combination.
- * If a match is found, it sets the current user's name and email in local storage and loads additional data to local storage.
- * If no match is found, it calls the checkLoginResults function with a false value to indicate a failed login attempt.
+ * This function handles the user login process. It retrieves the email and password from the input fields, then queries the Firebase Realtime Database for all users under the "users" node.
+ * It checks if any user in the database has a matching email and password. If a match is found, it sets the current user's name and email in local storage and calls the loadDataToLocalStorage function to load the necessary data for the user.
+ * If no match is found, it calls the checkLoginResults function with a false value to indicate an unsuccessful login attempt, which will display an error message to the user.
  */
 function loginUser() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     db.ref("users").once("value", function (snapshot) {
-        let loginSuccess = false;
-        snapshot.forEach(function (userSnapshot) {
-            const userData = userSnapshot.val();
-            if (userData.email == email && userData.password == password) {
-                loginSuccess = true;
-                localStorage.setItem("currentUserName", userData.name);
-                localStorage.setItem("currentUserEmail", userData.email);
-            }
-        });
+        const loginSuccess = checkIfUserExistsForLogin(
+            snapshot,
+            email,
+            password,
+        );
         if (loginSuccess) {
             loadDataToLocalStorage();
         } else {
             checkLoginResults(false);
         }
     });
+}
+
+/**
+ * This function checks if a user with the provided email and password exists in the Firebase Realtime Database.
+ */
+function checkIfUserExistsForLogin(snapshot, email, password) {
+    let loginSuccess = false;
+    snapshot.forEach(function (userSnapshot) {
+        const userData = userSnapshot.val();
+        if (userData.email == email && userData.password == password) {
+            loginSuccess = true;
+            localStorage.setItem("currentUserName", userData.name);
+            localStorage.setItem("currentUserEmail", userData.email);
+        }
+    });
+    return loginSuccess;
 }
 
 /**
@@ -124,36 +136,47 @@ function checkPrivacy() {
 }
 
 /**
- * This function checks if a user with the provided email already exists in the Firebase Realtime Database under the "users" node.
- * It retrieves the email and password from the input fields, then queries the database for all users and checks if any of them have a matching email.
- * If a user with the same email is found, it displays an error message using the SweetAlert.
- * If no user with the same email is found, it calls the saveUser function to save the new user's data to the database.
+ * This function checks if a user with the provided email already exists in the Firebase Realtime Database.
+ * It retrieves the name, email, and password from the input fields, then queries the database for all users under the "users" node.
+ * It iterates through the users in the database and checks if any user has a matching email. If a match is found, it calls the userAlreadyExistsError function to display an error message.
+ * If no match is found, it calls the saveUser function to save the new user's data to the database.
  */
 function checkIfUserExists() {
     const name = document.getElementById("name").value;
     const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value; // E-Mail und Passwort aus den Eingabefeldern holen
+    const password = document.getElementById("password").value;
     db.ref("users").once("value", function (snapshot) {
-        //Alle Benutzer unter "users" in der Datenbank abrufen
-        let userExists = false; //Login standardmäßig auf false setzen
-        snapshot.forEach(function (userSnapshot) {
-            //snapshot durchläuft alle Benutzer
-            const userData = userSnapshot.val(); //Daten in userData speichern
-            if (userData.email === email) {
-                //Überprüfen, ob E-Mail und Passwort übereinstimmen
-                userExists = true; //Wenn ja, Login auf true setzen
-            }
-        });
+        const userExists = findExistingUser(snapshot, email);
         if (userExists === true) {
-            //Wenn User bereits existiert, Fehlermeldung anzeigen sonst weiter zur function saveUser()
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Benutzer Existiert Bereits!",
-            });
+            userAlreadyExistsError();
         } else {
             saveUser(name, email, password);
         }
+    });
+}
+
+/**
+ * This function iterates through the users in the Firebase Realtime Database snapshot and checks if any user has a matching email.
+ * If a match is found, it sets the userExists variable to true. After iterating through all users, it returns the value of userExists, indicating whether a user with the provided email already exists in the database or not.
+ */
+function findExistingUser(snapshot, email) {
+    let userExists = false;
+    snapshot.forEach(function (userSnapshot) {
+        const userData = userSnapshot.val();
+        if (userData.email === email) {
+            userExists = true;
+        }
+    });
+    return userExists;
+}
+
+/** * This function displays an error message using the SweetAlert library, indicating that a user with the provided email already exists in the database.
+ */
+function userAlreadyExistsError() {
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Benutzer Existiert Bereits!",
     });
 }
 
@@ -170,20 +193,29 @@ function saveUser(name, email, password) {
             email: email,
             password: password,
         })
-        .then(function () {
-            Swal.fire({
-                title: "Registrierung Erfolgreich!",
-                icon: "success",
-                draggable: true,
-            }).then(function () {
-                window.location.href = "login.html";
-            });
-        })
-        .catch(function (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Fehler bei der Registrierung! ",
-            });
-        });
+        .then(saveUserSuccess)
+        .catch(saveUserError);
+}
+
+/** * This function displays a success message using the SweetAlert library, indicating that the registration was successful.
+ * After the user clicks the "OK" button on the alert, it redirects the user to the login page (login.html).
+ */
+function saveUserSuccess() {
+    Swal.fire({
+        title: "Registrierung Erfolgreich!",
+        icon: "success",
+        draggable: true,
+    }).then(function () {
+        window.location.href = "login.html";
+    });
+}
+
+/** * This function displays an error message using the SweetAlert library, indicating that there was an error during the registration process.
+ */
+function saveUserError() {
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Fehler bei der Registrierung! ",
+    });
 }
