@@ -74,3 +74,57 @@ function getHeaderTemplate() {
                 </div>
             </div>`;
 }
+
+
+// --- Contacts Templates ---
+
+// Einzelnes Kontakt-Item in der Sidebar-Liste
+function getContactItemTemplate(contact, isActiveClass, avatarColor) {
+    return `<div class="contact-item ${isActiveClass}" data-firebase-key="${contact.firebaseKey}" onclick="showContactDetail('${contact.firebaseKey}')">
+                <div class="contact-item__avatar" style="background-color: ${avatarColor}">${getInitials(contact.name)}</div>
+                <div class="contact-item__info">
+                    <span class="contact-item__name">${contact.name}</span>
+                    <span class="contact-item__mail">${contact.email}</span>
+                </div>
+            </div>`;
+}
+
+// Buchstabengruppe mit allen zugehörigen Kontakt-Items
+function getContactGroupTemplate(letter, itemsHtml) {
+    return `<div class="contact-group">
+                <div class="contact-group__header">
+                    <span class="contact-group__letter">${letter}</span>
+                    <hr class="contact-group__divider" />
+                </div>
+                <div class="contact-group__items">${itemsHtml}</div>
+            </div>`;
+}
+
+// Großer Avatar mit Name und Edit/Delete-Buttons in der Detail-Ansicht
+function getContactCardTemplate(contact, avatarColor) {
+    return `<div class="contact-card">
+                <div class="contact-card__avatar" style="background-color: ${avatarColor}">${getInitials(contact.name)}</div>
+                <div class="contact-card__user-info">
+                    <h2 class="contact-card__name">${contact.name}</h2>
+                    <div class="contact-card__btn-container">
+                        <button class="contact-card__btn" onclick="openEditContactDialog('${contact.firebaseKey}')"><img src="assets/icons/edit.png" alt="" />Edit</button>
+                        <button class="contact-card__btn" onclick="confirmDeleteContact('${contact.firebaseKey}')"><img src="assets/icons/delete.png" alt="" />Delete</button>
+                    </div>
+                </div>
+            </div>`;
+}
+
+// E-Mail und Telefon in der Detail-Ansicht
+function getContactInfoTemplate(contact) {
+    return `<div class="contact-card__info">
+                <h3>Contact Information</h3>
+                <div class="contact-card__information">
+                    <span><strong>Email</strong></span>
+                    <a href="mailto:${contact.email}">${contact.email}</a>
+                </div>
+                <div class="contact-card__information">
+                    <span><strong>Phone</strong></span>
+                    <a href="tel:${contact.phone}">${contact.phone}</a>
+                </div>
+            </div>`;
+}

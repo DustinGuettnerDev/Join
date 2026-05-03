@@ -7,12 +7,18 @@
         <link rel="stylesheet" href="styles/contacts.css" />
         <link rel="stylesheet" href="styles/variable.css" />
         <link rel="stylesheet" href="styles/fonts.css" />
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
         <script src="script.js"></script>
         <script src="scripts/templates.js"></script>
         <script src="scripts/contacts.js"></script>
+
         <title>Contacts</title>
     </head>
-    <body onload="init()">
+    <body onload="init(); initContacts();">
         <div class="content__container fs-small-regular">
             <aside id="js-sidebar" class="sidebar fc-lightgrey"></aside>
 
@@ -22,112 +28,36 @@
                     <article class="contacts" id="contactsPanel">
                         <section class="contacts-sidebar">
                             <div class="contacts-sidebar__btn">
-                                <button class="contacts-sidebar__add-btn" id="addNewContact">Add new contact<img src="assets/icons/person-add.png" alt="Add Contact" /></button>
+                                <button class="contacts-sidebar__add-btn" id="addNewContact">
+                                    Add new contact
+                                    <img src="assets/icons/person-add.png" alt="Add Contact" />
+                                </button>
                             </div>
-                            <div class="contacts-sidebar__groups">
-                                <div class="contact-group">
-                                    <div class="contact-group__header">
-                                        <span class="contact-group__letter">A</span>
-                                        <hr class="contact-group__divider" />
-                                    </div>
-                                    <div class="contact-group__items">
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">AM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Anton Mayer</span>
-                                                <span class="contact-item__mail">antonmayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">AM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Anton Mayer</span>
-                                                <span class="contact-item__mail">antonmayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">AM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Anton Mayer</span>
-                                                <span class="contact-item__mail">antonmayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">AM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Anton Mayer</span>
-                                                <span class="contact-item__mail">antonmayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="contact-group">
-                                    <div class="contact-group__header">
-                                        <span class="contact-group__letter">B</span>
-                                        <hr class="contact-group__divider" />
-                                    </div>
-                                    <div class="contact-group__items">
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">BM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Bene Mayer</span>
-                                                <span class="contact-item__mail">bene.mayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">BM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Bernd Mayer</span>
-                                                <span class="contact-item__mail">bernd.mayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">BM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Bene Mayer</span>
-                                                <span class="contact-item__mail">bene.mayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                        <div class="contact-item">
-                                            <div class="contact-item__avatar">BM</div>
-                                            <div class="contact-item__info">
-                                                <span class="contact-item__name">Bernd Mayer</span>
-                                                <span class="contact-item__mail">bernd.mayer@gmail.com</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="contacts-sidebar__groups" id="contactGroups"></div>
+                            <button class="contacts__fab" id="addContactFab">
+                                <img src="assets/icons/person-add.png" alt="Add Contact" />
+                            </button>
                         </section>
-                        <section class="contact-content">
+                        <section class="main-content contact-content">
                             <div class="contact-content__header">
-                                <h1>Contacts</h1>
-                                <hr class="contact-content__divider" />
-                                <p>Better with a team</p>
+                                <div class="contact-content__header-left">
+                                    <h1>Contacts</h1>
+                                    <hr class="contact-content__divider" />
+                                    <p>Better with a team</p>
+                                </div>
                                 <button class="contacts__back-btn" id="contactsBackBtn" aria-label="Back to contacts"></button>
                             </div>
-                            <div class="contact-content__info" id="contactInfo">
-                                <div class="contact-card">
-                                    <div class="contact-card__avatar">AM</div>
-                                    <div class="contact-card__user-info">
-                                        <h2 class="contact-card__name">Anton Mayer</h2>
-                                        <div class="contact-card__btn-container">
-                                            <button class="contact-card__btn"><img src="assets/icons/edit.png" alt="Edit Contact" />Edit</button>
-                                            <button class="contact-card__btn"><img src="assets/icons/delete.png" alt="Delete Contact" />Delete</button>
-                                        </div>
-                                    </div>
+                            <div class="contact-content__info" id="contactInfo"></div>
+                            <div class="contact-action-menu" id="contactActionMenu">
+                                <div class="contact-action-menu__popup" id="contactActionPopup">
+                                    <button class="contact-action-menu__item" onclick="openEditFromMenu()">
+                                        <img src="assets/icons/edit.png" alt="" />Edit
+                                    </button>
+                                    <button class="contact-action-menu__item" onclick="deleteFromMenu()">
+                                        <img src="assets/icons/delete.png" alt="" />Delete
+                                    </button>
                                 </div>
-                                <div class="contact-card__info">
-                                    <h3>Contact Information</h3>
-                                    <div class="contact-card__information">
-                                        <span><strong>Email</strong></span>
-                                        <a href="mailto:anton.mayer@gmail.com">anton.mayer@gmail.com</a>
-                                    </div>
-                                    <div class="contact-card__information">
-                                        <span><strong>Phone</strong></span>
-                                        <a href="tel:+49123456789">+49 123 456789</a>
-                                    </div>
-                                </div>
+                                <button class="contact-action-menu__btn" id="contactActionBtn">⋮</button>
                             </div>
                         </section>
                     </article>
@@ -135,35 +65,43 @@
             </div>
         </div>
 
-        <!-- Add Contact Dialog -->
         <div class="add-contact" id="addContactOverlay">
             <div class="add-contact__dialog">
+
                 <div class="add-contact__left">
                     <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
                     <h2 class="add-contact__title">Add contact</h2>
                     <p class="add-contact__subtitle">Tasks are better with a team!</p>
                     <hr class="add-contact__divider" />
                 </div>
+                <button class="add-contact__close" id="closeAddContactBtn">
+                    <img src="assets/icons/Vector.png" alt="Close" />
+                </button>
                 <div class="add-contact__right">
-                    <button class="add-contact__close" id="closeAddContactDialog"><img src="assets/icons/Vector.png" alt="Close" /></button>
                     <div class="add-contact__body">
-                        <div class="add-contact__avatar">AM</div>
-                        <form class="add-contact__form">
+                        <div class="add-contact__avatar add-contact__avatar--placeholder" id="addContactAvatar">
+                            <img src="assets/icons/person.png" alt="Person" class="add-contact__avatar-icon" />
+                        </div>
+                        <form class="add-contact__form" id="addContactForm">
                             <div class="add-contact__input">
-                                <input type="text" placeholder="Name" />
+                                <input type="text" id="addContactName" placeholder="Name" required />
                                 <img src="assets/icons/person.png" alt="Name" />
                             </div>
                             <div class="add-contact__input">
-                                <input type="email" placeholder="Email" />
+                                <input type="email" id="addContactEmail" placeholder="Email" required />
                                 <img src="assets/icons/mail.png" alt="Email" />
                             </div>
                             <div class="add-contact__input">
-                                <input type="tel" placeholder="Phone" />
+                                <input type="tel" id="addContactPhone" placeholder="Phone" required />
                                 <img src="assets/icons/call.png" alt="Phone" />
                             </div>
                             <div class="add-contact__buttons">
-                                <button type="button" class="add-contact__btn--cancel">Cancel<img src="assets/icons/Vector.png" alt="Cancel" /></button>
-                                <button type="submit" class="add-contact__btn--create">Create contact<img src="assets/icons/check.png" alt="Create" /></button>
+                                <button type="button" class="add-contact__btn--cancel" id="cancelAddContactBtn">
+                                    Cancel <img src="assets/icons/Vector.png" alt="Cancel" />
+                                </button>
+                                <button type="submit" class="add-contact__btn--create">
+                                    Create contact <img src="assets/icons/check.png" alt="Create" />
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -171,85 +109,46 @@
             </div>
         </div>
 
-        <script>
-            const overlay = document.getElementById("addContactOverlay");
-            const openBtn = document.getElementById("addNewContact");
-            const closeBtn = document.getElementById("closeAddContactDialog");
-
-            function openAddContactDialog() {
-                overlay.style.display = "flex";
-            }
-
-            function closeAddContactDialog() {
-                overlay.style.display = "none";
-            }
-
-            openBtn.addEventListener("click", openAddContactDialog);
-            closeBtn.addEventListener("click", closeAddContactDialog);
-            overlay.addEventListener("click", function (event) {
-                if (event.target === overlay) {
-                    closeAddContactDialog();
-                }
-            });
-
-            // --- Contact Detail Panel ---
-            const contactsPanel = document.getElementById('contactsPanel');
-            const contactInfo = document.getElementById('contactInfo');
-            const backBtn = document.getElementById('contactsBackBtn');
-            const contactItems = document.querySelectorAll('.contact-item');
-
-            function openContactDetail(item) {
-                // Aktiven Kontakt markieren
-                for (let i = 0; i < contactItems.length; i++) {
-                    contactItems[i].classList.remove('contact-item--active');
-            }
-                item.classList.add('contact-item--active');
-
-                // Detail-Bereich befüllen
-                const name = item.querySelector('.contact-item__name').textContent;
-                const mail = item.querySelector('.contact-item__mail').textContent;
-                const initials = item.querySelector('.contact-item__avatar').textContent;
-
-                contactInfo.innerHTML = `
-                    <div class="contact-card">
-                        <div class="contact-card__avatar">${initials}</div>
-                        <div class="contact-card__user-info">
-                            <h2 class="contact-card__name">${name}</h2>
-                            <div class="contact-card__btn-container">
-                                <button class="contact-card__btn"><img src="assets/icons/edit.png" alt="Edit Contact">Edit</button>
-                                <button class="contact-card__btn"><img src="assets/icons/delete.png" alt="Delete Contact">Delete</button>
+        <div class="add-contact" id="editContactOverlay">
+            <div class="add-contact__dialog">
+                <div class="add-contact__left">
+                    <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
+                    <h2 class="add-contact__title">Edit contact</h2>
+                    <p class="add-contact__subtitle">Tasks are better with a team!</p>
+                    <hr class="add-contact__divider" />
+                </div>
+                <button class="add-contact__close" id="closeEditContactBtn">
+                    <img src="assets/icons/Vector.png" alt="Close" />
+                </button>
+                <div class="add-contact__right">
+                    <div class="add-contact__body">
+                        <div class="add-contact__avatar" id="editContactAvatar"></div>
+                        <form class="add-contact__form" id="editContactForm">
+                            <input type="hidden" id="editContactFirebaseKey" />
+                            <div class="add-contact__input">
+                                <input type="text" id="editContactName" placeholder="Name" required />
+                                <img src="assets/icons/person.png" alt="Name" />
                             </div>
-                        </div>
+                            <div class="add-contact__input">
+                                <input type="email" id="editContactEmail" placeholder="Email" required />
+                                <img src="assets/icons/mail.png" alt="Email" />
+                            </div>
+                            <div class="add-contact__input">
+                                <input type="tel" id="editContactPhone" placeholder="Phone" required />
+                                <img src="assets/icons/call.png" alt="Phone" />
+                            </div>
+                            <div class="add-contact__buttons">
+                                <button type="button" class="add-contact__btn--cancel" id="deleteContactFromEditBtn">
+                                    Delete <img src="assets/icons/delete.png" alt="Delete" />
+                                </button>
+                                <button type="submit" class="add-contact__btn--create">
+                                    Save <img src="assets/icons/check.png" alt="Save" />
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="contact-card__info">
-                        <h3>Contact Information</h3>
-                        <div class="contact-card__information">
-                            <span><strong>Email</strong></span>
-                            <a href="mailto:${mail}">${mail}</a>
-                        </div>
-                        <div class="contact-card__information">
-                            <span><strong>Phone</strong></span>
-                            <a href="tel:+49123456789">+49 123 456789</a>
-                        </div>
-                    </div>
-                `;
-
-                // Detail sichtbar machen
-                contactInfo.classList.add('contact-content__info--visible');
-
-                // Auf Mobile: zum Detail-Panel wechseln
-                contactsPanel.classList.add('contacts--detail-open');
-            }
-
-            function closeContactDetail() {
-                contactsPanel.classList.remove('contacts--detail-open');
-            }
-
-            contactItems.forEach(item => {
-                item.addEventListener('click', () => openContactDetail(item));
-            });
-
-            backBtn.addEventListener('click', closeContactDetail);
-        </script>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
