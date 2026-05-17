@@ -19,6 +19,7 @@ main {
 
 .main-content {
     padding: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* -- Contacts Page --- */
@@ -63,6 +64,12 @@ main {
 .contacts-sidebar__btn {
     display: flex;
     justify-content: center;
+    position: sticky;
+    top: -30px;
+    margin: -30px -50px 0;
+    padding: 30px 50px 10px;
+    background-color: rgba(255, 255, 255, 1);
+    z-index: 1;
 }
 
 .contacts-sidebar__add-btn {
@@ -158,16 +165,23 @@ main {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .contact-item__name {
     font-size: 16px;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .contact-item__mail {
     font-size: 14px;
     color: #007cee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* -- Contact Content -- */
@@ -177,7 +191,7 @@ main {
     flex-direction: column;
     flex: 1;
     height: 100%;
-    padding: 50px;
+    padding: 50px 0 50px 50px;
 }
 
 .contact-content__header {
@@ -188,6 +202,7 @@ main {
 .contact-content__header-left {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 5px;
 }
 
@@ -214,7 +229,7 @@ main {
 
 .contact-card {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 50px;
 }
 
@@ -686,10 +701,6 @@ main {
         gap: 8px;
     }
 
-    .contact-content__header h1 {
-        font-size: 40px;
-    }
-
     .contact-content__header p {
         font-size: 18px;
     }
@@ -838,11 +849,6 @@ main {
 
     .contact-card__info h3 {
         font-size: 18px;
-    }
-
-    .contacts--detail-open .contact-content__header h1 {
-        font-size: 47px;
-        margin: 0;
     }
 
     .contacts--detail-open .contact-content__header p {

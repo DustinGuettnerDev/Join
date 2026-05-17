@@ -274,8 +274,9 @@ function showFirebaseError(error) {
 // Shows a success toast notification.
 function showSuccessToast(message) {
     Swal.fire({
-        toast: true, position: 'bottom-end', title: message,
+        toast: true, position: 'bottom', title: message,
         showConfirmButton: false, timer: 3000,
         background: '#2a3647', color: '#fff',
+        customClass: { container: 'success-toast-container' },
     });
 }

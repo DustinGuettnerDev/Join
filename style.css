@@ -178,6 +178,11 @@ a {
     margin-left: 10px;
 }
 
+.header__user-button svg {
+    width: 50px;
+    height: 50px;
+}
+
 .header__user-button:hover .header__circle {
     fill: var(--color-neutral-200);
 }
@@ -266,6 +271,7 @@ a {
         margin-bottom: 130px;
         margin-left: 0;
         margin-top: 120px;
+        padding-top: 16px;
     }
 
     .sidebar {
@@ -339,12 +345,26 @@ a {
 
 @media (max-width: 600px) {
     .main-content {
-        padding: 50px 25px;
+        padding: 16px 25px;
     }
 }
 
 @media (max-width: 400px) {
     .main-content {
-        padding: 50px 10px;
+        padding: 16px 10px;
+    }
+}
+
+.success-toast-container .swal2-popup {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 24px;
+    border-radius: 12px;
+    min-width: 260px;
+}
+
+@media (max-width: 850px) {
+    .success-toast-container {
+        padding-bottom: calc(var(--height-sidebar-mobile) + 16px) !important;
     }
 }

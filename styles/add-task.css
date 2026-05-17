@@ -200,11 +200,10 @@ textarea {
         flex: 1;
         min-height: 0;
         overflow: hidden;
-        padding: 24px 16px 0 16px;
+        padding: 16px 25px 0 25px;
     }
     .main-content__page-title {
         flex-shrink: 0;
-        font-size: 32px;
         margin-bottom: 24px;
     }
     .task-form__scroll-area {

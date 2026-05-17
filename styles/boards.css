@@ -1,4 +1,4 @@
-/* Effekt für Touch-Dragging auf allen Geräten */
+/* Effekt fï¿½r Touch-Dragging auf allen Gerï¿½ten */
 .task--touch-dragging {
     box-shadow:
         0 8px 32px rgba(42, 54, 71, 0.32),
@@ -29,7 +29,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     margin-top: 12px;
 }
 
@@ -37,19 +37,29 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .board__list-header {
     display: flex;
-    justify-content: center;
-    gap: 24px;
     align-items: center;
+    gap: 12px;
     width: 100%;
 }
 
+.board__list-header .board__headline {
+    order: 0;
+    flex: 1;
+    margin: 0;
+}
+
+.board__list-header .addTaskBtnBoard {
+    order: 1;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
 #board__list--done .board__list-header {
-    justify-content: center;
     margin-bottom: 0;
 }
 
@@ -68,8 +78,9 @@
     border: 1px dashed var(--color-neutral-450);
     border-radius: 6px;
     font-size: 16px;
-    width: 80%;
+    width: 100%;
     padding: 10px;
+    box-sizing: border-box;
 }
 
 /* Search */
