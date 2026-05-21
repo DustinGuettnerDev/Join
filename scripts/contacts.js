@@ -8,28 +8,27 @@ const firebaseConfig = {
     appId: "1:404471964373:web:584fe9ea95cd3476aab85c",
 };
 
-const AVATAR_COLORS = [
-    '#FF7A00', '#FF5EB3', '#6E52FF', '#9327FF', '#00BEE8',
-    '#1FD7C1', '#FF745E', '#FFA35E', '#FC71FF', '#FFC701',
-    '#0038FF', '#C3FF2B', '#FFE62B', '#FF4646', '#FFBB2B',
-];
 
-// Initialisiert Firebase (falls notwendig) und liefert die Realtime Database Instanz.
+/**
+ * Initializes Firebase if not already done and returns the Realtime Database instance.
+ * @returns {firebase.database.Database} The Firebase Realtime Database instance.
+ */
 function getFirebaseDatabase() {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     return firebase.database();
 }
 
+
 const db = getFirebaseDatabase();
 
-// Speichert alle geladenen Kontakte als Array von Objekten: { firebaseKey, name, email, phone }
+/** All loaded contacts as an array of objects: { firebaseKey, name, email, phone } */
 let contactsList = [];
 
-// Speichert den Firebase-Key des aktuell angezeigten Kontakts, damit er in der Liste Markiert wird
+/** Firebase key of the currently displayed contact, used to highlight it in the list. */
 let currentActiveFirebaseKey = null;
 
-// CSS-Klassen für den Bestätigungsdialog zum Löschen eines Kontakts
-const DELETE_DIALOG_CLASSES = {
+/** CSS class names for the SweetAlert delete confirmation dialog. */
+const deleteDialogClasses = {
     popup: 'swal-delete-popup',
     title: 'swal-delete-title',
     htmlContainer: 'swal-delete-text',
@@ -37,19 +36,34 @@ const DELETE_DIALOG_CLASSES = {
     cancelButton: 'add-contact__btn--cancel',
 };
 
+
+/**
+ * Initializes the contacts page: loads contacts from local storage,
+ * renders the list, and sets up all event listeners.
+ */
 function initContacts() {
     loadContactsFromLocalStorage();
     renderContacts();
     setupEventListeners();
 }
+
+
 // --- Local Storage ---
 
-// Gibt die Kontaktdaten aus dem Local Storage als Objekt zurück
+/**
+ * Returns the contacts data stored in local storage as a plain object.
+ * @returns {Object} Key-value map of Firebase keys to contact data objects.
+ */
 function getLocalStorageData() {
     return JSON.parse(localStorage.getItem('contacts') || '{}');
 }
 
-// Wandelt einen Eintrag aus dem Local Storage in ein Kontakt-Objekt
+
+/**
+ * Converts a local storage entry into a normalized contact object.
+ * @param {Array} entry - A [key, value] pair from Object.entries().
+ * @returns {{ firebaseKey: string, name: string, email: string, phone: string }} Normalized contact.
+ */
 function parseContact(entry) {
     return {
         firebaseKey: entry[0],
@@ -59,7 +73,10 @@ function parseContact(entry) {
     };
 }
 
-// Liest die Kontakte aus dem Local Storage und speichert sie im contactsList Array
+
+/**
+ * Reads all contacts from local storage and populates the contactsList array.
+ */
 function loadContactsFromLocalStorage() {
     const entries = Object.entries(getLocalStorageData());
     contactsList = [];
@@ -68,35 +85,55 @@ function loadContactsFromLocalStorage() {
     }
 }
 
-// Lädt Kontakte aus Firebase und schreibt sie in den Local Storage als Objekt unter "contacts".
+
+/**
+ * Fetches all contacts from Firebase and writes them to local storage.
+ * @returns {Promise<boolean>} True on success, false on network or HTTP error.
+ */
 async function syncContactsFromFirebaseToLocalStorage() {
     try {
-        const response = await fetch(`${FIREBASE_BASE_URL}contacts.json`);
+        const response = await fetch(`${firebaseBaseUrl}contacts.json`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const remoteContacts = await response.json() || {};
         localStorage.setItem('contacts', JSON.stringify(remoteContacts));
         return true;
     } catch (error) {
-        console.error('Kontakte konnten nicht aus Firebase geladen werden:', error);
+        console.error('Failed to load contacts from Firebase:', error);
         return false;
     }
 }
 
-// Speichert oder überschreibt einen Kontakt im Local Storage
+
+/**
+ * Saves or overwrites a single contact in local storage.
+ * @param {string} key - The Firebase key of the contact.
+ * @param {{ name: string, email: string, phone: string }} contact - Contact data to store.
+ */
 function setInLocalStorage(key, contact) {
     const data = getLocalStorageData();
     data[key] = contact;
     localStorage.setItem('contacts', JSON.stringify(data));
 }
 
-// Entfernt einen Kontakt aus dem Local Storage
+
+/**
+ * Removes a contact from local storage by its Firebase key.
+ * @param {string} key - The Firebase key of the contact to remove.
+ */
 function removeFromLocalStorage(key) {
     const data = getLocalStorageData();
     delete data[key];
     localStorage.setItem('contacts', JSON.stringify(data));
 }
-// --- Hilfsfunktionen ---
 
+
+// --- Utility ---
+
+/**
+ * Converts a string to title case (first letter of each word capitalized).
+ * @param {string} str - The input string.
+ * @returns {string} The title-cased string.
+ */
 function toTitleCase(str) {
     const words = str.trim().split(' ');
     const result = [];
@@ -107,7 +144,12 @@ function toTitleCase(str) {
     return result.join(' ');
 }
 
-// Gibt die Initialen eines Namens zurück
+
+/**
+ * Returns the initials of a full name (first letter of first and last word).
+ * @param {string} name - The full name of the contact.
+ * @returns {string} One or two uppercase initials.
+ */
 function getInitials(name) {
     const parts = name.trim().split(' ');
     if (parts.length >= 2) {
@@ -116,16 +158,25 @@ function getInitials(name) {
     return parts[0][0].toUpperCase();
 }
 
-// Gibt eine Farbe für den Avatar zurück, basierend auf der E-Mail-Adresse des Kontakts
+
+/**
+ * Returns a deterministic avatar color based on the contact's email address.
+ * @param {string} email - The email address used to calculate the color index.
+ * @returns {string} A hex color string from avatarColors.
+ */
 function getAvatarColor(email) {
     let sum = 0;
     for (let index = 0; index < email.length; index++) {
         sum += email.charCodeAt(index);
     }
-    return AVATAR_COLORS[sum % AVATAR_COLORS.length];
+    return avatarColors[sum % avatarColors.length];
 }
 
-// Sortiert die Kontakte alphabetisch und gruppiert sie nach dem ersten Buchstaben
+
+/**
+ * Sorts contactsList alphabetically and groups contacts by their first letter.
+ * @returns {Object.<string, Array>} An object where keys are uppercase letters and values are contact arrays.
+ */
 function groupContactsAlphabetically() {
     const sorted = [...contactsList].sort(function(a, b) {
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
@@ -141,7 +192,12 @@ function groupContactsAlphabetically() {
     return groups;
 }
 
-// Baut den HTML-String aller Kontakt-Items einer Gruppe zusammen
+
+/**
+ * Builds an HTML string for all contact items within a letter group.
+ * @param {Array} contacts - Array of contact objects belonging to one letter group.
+ * @returns {string} HTML markup for all contact items in the group.
+ */
 function buildItemsHtml(contacts) {
     let html = '';
     for (let index = 0; index < contacts.length; index++) {
@@ -152,9 +208,13 @@ function buildItemsHtml(contacts) {
     }
     return html;
 }
+
+
 // --- Render ---
 
-// Baut die Kontaktliste in der Sidebar auf
+/**
+ * Renders the full contacts list into the sidebar, grouped by first letter.
+ */
 function renderContacts() {
     const container = document.getElementById('contactGroups');
     const groups = groupContactsAlphabetically();
@@ -166,16 +226,25 @@ function renderContacts() {
     container.innerHTML = html;
 }
 
-// Kombiniert Karte und Info-Bereich für die vollständige Detail-Ansicht
+
+/**
+ * Returns the combined HTML for the contact card and the info section.
+ * @param {{ name: string, email: string, phone: string }} contact - The contact to display.
+ * @returns {string} HTML markup for the full detail view.
+ */
 function getContactDetailTemplate(contact) {
     const avatarColor = getAvatarColor(contact.email);
     return getContactCardTemplate(contact, avatarColor) + getContactInfoTemplate(contact);
 }
 
 
-// --- Detail-Ansicht ---
+// --- Detail View ---
 
-// Zeigt die Detailinfos eines Kontakts an
+/**
+ * Displays the detail view for a contact by its Firebase key.
+ * Updates the active highlight in the list and injects the detail HTML.
+ * @param {string} key - The Firebase key of the contact to display.
+ */
 function showContactDetail(key) {
     const contact = contactsList.find(function(c) { return c.firebaseKey === key; });
     if (!contact) return;
@@ -188,7 +257,10 @@ function showContactDetail(key) {
     document.getElementById('contactActionMenu').classList.add('contact-action-menu--active');
 }
 
-// Leert den Detail-Bereich, z.B. nach dem Löschen eines Kontakts
+
+/**
+ * Clears the contact detail panel and resets all active state.
+ */
 function clearContactDetail() {
     currentActiveFirebaseKey = null;
     const contactInfo = document.getElementById('contactInfo');
@@ -199,205 +271,10 @@ function clearContactDetail() {
     document.getElementById('contactActionMenu').classList.remove('contact-action-menu--active');
 }
 
+
+/**
+ * Hides the detail panel on mobile to return to the contacts list.
+ */
 function closeContactDetailOnMobile() {
     document.getElementById('contactsPanel').classList.remove('contacts--detail-open');
-}
-
-
-// --- Add Contact ---
-
-function openAddContactDialog() {
-    document.getElementById('addContactForm').reset();
-    resetAddContactAvatar();
-    document.getElementById('addContactOverlay').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeAddContactDialog() {
-    document.getElementById('addContactOverlay').style.display = 'none';
-    document.body.style.overflow = '';
-}
-
-// Setzt den Avatar im Add-Dialog auf den grauen Platzhalter zurück
-function resetAddContactAvatar() {
-    const avatar = document.getElementById('addContactAvatar');
-    avatar.classList.add('add-contact__avatar--placeholder');
-    avatar.innerHTML = '<img src="assets/contacts/person.png" alt="Person" class="add-contact__avatar-icon" />';
-    avatar.style.backgroundColor = '';
-}
-
-// Aktualisiert die Avatar-Vorschau
-function updateAddContactAvatarPreview() {
-    const name = document.getElementById('addContactName').value.trim();
-    const avatar = document.getElementById('addContactAvatar');
-    if (name.length > 0) {
-        avatar.classList.remove('add-contact__avatar--placeholder');
-        avatar.innerHTML = getInitials(name);
-        avatar.style.backgroundColor = '#29ABE2';
-    } else {
-        resetAddContactAvatar();
-    }
-}
-
-// Wird aufgerufen nachdem Firebase den neuen Kontakt gespeichert hat
-function onContactAdded(key, contact) {
-    setInLocalStorage(key, contact);
-    loadContactsFromLocalStorage();
-    renderContacts();
-    closeAddContactDialog();
-    showContactDetail(key);
-    showSuccessToast('Contact successfully created');
-}
-
-// Liest das Formular aus und speichert den neuen Kontakt in Firebase
-function handleAddContactSubmit(event) {
-    event.preventDefault();
-    const newContact = {
-        name: toTitleCase(document.getElementById('addContactName').value),
-        email: document.getElementById('addContactEmail').value.trim(),
-        phone: document.getElementById('addContactPhone').value.trim(),
-    };
-    db.ref('contacts').push(newContact)
-        .then(function(snapshot) { onContactAdded(snapshot.key, newContact); })
-        .catch(showFirebaseError);
-}
-// --- Edit Contact ---
-
-// Befüllt den Avatar im Edit-Dialog mit den Initialen und der Farbe des Kontakts
-function setEditContactAvatar(contact) {
-    const avatar = document.getElementById('editContactAvatar');
-    avatar.textContent = getInitials(contact.name);
-    avatar.style.backgroundColor = getAvatarColor(contact.email);
-}
-
-// Öffnet den Edit-Dialog und füllt alle Felder mit den aktuellen Daten des Kontakts
-function openEditContactDialog(key) {
-    const contact = contactsList.find(function(c) { return c.firebaseKey === key; });
-    if (!contact) return;
-    document.getElementById('editContactFirebaseKey').value = key;
-    document.getElementById('editContactName').value = contact.name;
-    document.getElementById('editContactEmail').value = contact.email;
-    document.getElementById('editContactPhone').value = contact.phone;
-    setEditContactAvatar(contact);
-    document.getElementById('editContactOverlay').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeEditContactDialog() {
-    document.getElementById('editContactOverlay').style.display = 'none';
-    document.body.style.overflow = '';
-}
-
-function onContactEdited(key, contact) {
-    setInLocalStorage(key, contact);
-    loadContactsFromLocalStorage();
-    renderContacts();
-    closeEditContactDialog();
-    showContactDetail(key);
-}
-
-// Liest das Formular aus und speichert die Änderungen in Firebase
-function handleEditContactSubmit(event) {
-    event.preventDefault();
-    const key = document.getElementById('editContactFirebaseKey').value;
-    const updated = {
-        name: toTitleCase(document.getElementById('editContactName').value),
-        email: document.getElementById('editContactEmail').value.trim(),
-        phone: document.getElementById('editContactPhone').value.trim(),
-    };
-    db.ref('contacts/' + key).update(updated)
-        .then(function() { onContactEdited(key, updated); })
-        .catch(showFirebaseError);
-}
-// --- Delete Contact ---
-
-// Dialog zum Löschen eines Kontakts, mit SweetAlert
-function confirmDeleteContact(key) {
-    const contact = contactsList.find(function(c) { return c.firebaseKey === key; });
-    const name = contact ? contact.name : 'this contact';
-    Swal.fire({
-        title: 'Delete contact?',
-        text: 'Do you really want to delete "' + name + '"?',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete',
-        cancelButtonText: 'Cancel',
-        buttonsStyling: false,
-        customClass: DELETE_DIALOG_CLASSES,
-    }).then(function(result) { if (result.isConfirmed) deleteContact(key); });
-}
-
-function onContactDeleted(key) {
-    removeFromLocalStorage(key);
-    loadContactsFromLocalStorage();
-    renderContacts();
-    closeEditContactDialog();
-    clearContactDetail();
-}
-
-function deleteContact(key) {
-    db.ref('contacts/' + key).remove()
-        .then(function() { onContactDeleted(key); })
-        .catch(showFirebaseError);
-}
-
-// --- Mobile Aktionsmenü ---
-function openEditFromMenu() {
-    closeContactActionMenu();
-    openEditContactDialog(currentActiveFirebaseKey);
-}
-
-function deleteFromMenu() {
-    closeContactActionMenu();
-    confirmDeleteContact(currentActiveFirebaseKey);
-}
-
-function toggleContactActionMenu(event) {
-    event.stopPropagation();
-    document.getElementById('contactActionPopup').classList.toggle('contact-action-menu__popup--visible');
-}
-
-function closeContactActionMenu() {
-    document.getElementById('contactActionPopup').classList.remove('contact-action-menu__popup--visible');
-}
-
-// --- Event Listeners ---
-function onDeleteFromEditDialog() {
-    const key = document.getElementById('editContactFirebaseKey').value;
-    confirmDeleteContact(key);
-}
-
-function setupAddDialogListeners() {
-    document.getElementById('closeAddContactBtn').addEventListener('click', closeAddContactDialog);
-    document.getElementById('cancelAddContactBtn').addEventListener('click', closeAddContactDialog);
-    document.getElementById('addContactForm').addEventListener('submit', handleAddContactSubmit);
-    document.getElementById('addContactName').addEventListener('input', updateAddContactAvatarPreview);
-    document.getElementById('addContactOverlay').addEventListener('click', function(event) {
-        if (event.target.id === 'addContactOverlay') closeAddContactDialog();
-    });
-}
-
-function setupEditDialogListeners() {
-    document.getElementById('closeEditContactBtn').addEventListener('click', closeEditContactDialog);
-    document.getElementById('editContactForm').addEventListener('submit', handleEditContactSubmit);
-    document.getElementById('deleteContactFromEditBtn').addEventListener('click', onDeleteFromEditDialog);
-    document.getElementById('editContactOverlay').addEventListener('click', function(event) {
-        if (event.target.id === 'editContactOverlay') closeEditContactDialog();
-    });
-}
-
-function setupMobileListeners() {
-    document.getElementById('addContactFab').addEventListener('click', openAddContactDialog);
-    document.getElementById('contactActionBtn').addEventListener('click', toggleContactActionMenu);
-    document.addEventListener('click', function(event) {
-        const menu = document.getElementById('contactActionMenu');
-        if (!menu.contains(event.target)) closeContactActionMenu();
-    });
-}
-
-function setupEventListeners() {
-    document.getElementById('addNewContact').addEventListener('click', openAddContactDialog);
-    document.getElementById('contactsBackBtn').addEventListener('click', closeContactDetailOnMobile);
-    setupAddDialogListeners();
-    setupEditDialogListeners();
-    setupMobileListeners();
 }

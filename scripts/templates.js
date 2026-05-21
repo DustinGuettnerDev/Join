@@ -1,4 +1,13 @@
 /**
+ * Returns the placeholder icon markup for an empty contact avatar.
+ * @returns {string} The avatar placeholder image HTML.
+ */
+function getAvatarPlaceholderTemplate() {
+    return '<img src="assets/contacts/person.png" alt="Person" class="add-contact__avatar-icon" />';
+}
+
+
+/**
  * Returns the sidebar template for logged-in users.
  * @returns {string} The sidebar HTML markup.
  */

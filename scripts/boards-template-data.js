@@ -1,15 +1,10 @@
 /**
- * Returns the avatar fill color from AVATAR_COLORS for a given index.
- * @param {number} index
- * @returns {string}
+ * Returns the avatar fill color from avatarColors for a given index.
+ * @param {number} index - The index used to select a color from the shared avatarColors array.
+ * @returns {string} A hex color string.
  */
 function getAvatarFillColor(index) {
-    const colors = typeof AVATAR_COLORS !== 'undefined' ? AVATAR_COLORS : [
-        '#FF7A00', '#FF5EB3', '#6E52FF', '#9327FF', '#00BEE8',
-        '#1FD7C1', '#FF745E', '#FFA35E', '#FC71FF', '#FFC701',
-        '#0038FF', '#C3FF2B', '#FFE62B', '#FF4646', '#FFBB2B',
-    ];
-    return colors[index % colors.length];
+    return avatarColors[index % avatarColors.length];
 }
 
 /**

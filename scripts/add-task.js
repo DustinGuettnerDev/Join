@@ -9,11 +9,7 @@ const ADD_TASK_DEFAULT_RETURN = "boards.html";
 let addTaskContactsLS = importandFormatLocalStorageData("contacts");
 
 
-const ADD_TASK_AVATAR_COLORS = [
-    '#FF7A00', '#FF5EB3', '#6E52FF', '#9327FF', '#00BEE8',
-    '#1FD7C1', '#FF745E', '#FFA35E', '#FC71FF', '#FFC701',
-    '#0038FF', '#C3FF2B', '#FFE62B', '#FF4646', '#FFBB2B',
-];
+
 /**
  * Create a URLSearchParams object for the current page query string.
  * @returns {URLSearchParams} The parsed query parameters.
@@ -366,12 +362,12 @@ function getInitials(name) {
  * @returns {string} The selected color code.
  */
 function getAvatarColor(email) {
-    if (!email) return ADD_TASK_AVATAR_COLORS[0];
+    if (!email) return avatarColors[0];
     let sum = 0;
     for (let index = 0; index < email.length; index++) {
         sum += email.charCodeAt(index);
     }
-    return ADD_TASK_AVATAR_COLORS[sum % ADD_TASK_AVATAR_COLORS.length];
+    return avatarColors[sum % avatarColors.length];
 }
 
 

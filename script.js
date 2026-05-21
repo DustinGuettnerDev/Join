@@ -5,8 +5,18 @@ const mobileQuery = window.matchMedia("(max-width: 850px)");
 let userMenuOpen = false;
 let userMenuCloseTimer;
 
-// Firebase configuration
-const FIREBASE_BASE_URL = "https://join-5bd8d-default-rtdb.europe-west1.firebasedatabase.app/";
+/** Base URL for all Firebase Realtime Database REST requests. */
+const firebaseBaseUrl = "https://join-5bd8d-default-rtdb.europe-west1.firebasedatabase.app/";
+
+/**
+ * Ordered list of colors used to generate deterministic contact avatars.
+ * The color for a contact is chosen by hashing the email address modulo this array's length.
+ */
+const avatarColors = [
+    '#FF7A00', '#FF5EB3', '#6E52FF', '#9327FF', '#00BEE8',
+    '#1FD7C1', '#FF745E', '#FFA35E', '#FC71FF', '#FFC701',
+    '#0038FF', '#C3FF2B', '#FFE62B', '#FF4646', '#FFBB2B',
+];
 
 /**
  * Initializes shared page elements and reveals the layout after key images are ready.
@@ -289,7 +299,7 @@ function showSuccessToast(message) {
 }
 // Sends a new task to Firebase Realtime Database and returns the response payload.
 async function postTaskRequestToFirebase(task) {
-    const response = await fetch(`${FIREBASE_BASE_URL}boards.json`, {
+    const response = await fetch(`${firebaseBaseUrl}boards.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(task),

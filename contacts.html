@@ -7,6 +7,8 @@
         <link rel="stylesheet" href="style.css" />
         <link rel="stylesheet" href="styles/components.css" />
         <link rel="stylesheet" href="styles/contacts.css" />
+        <link rel="stylesheet" href="styles/contacts-modal.css" />
+        <link rel="stylesheet" href="styles/contacts-responsive.css" />
         <link rel="stylesheet" href="styles/variable.css" />
         <link rel="stylesheet" href="styles/fonts.css" />
 
@@ -17,6 +19,7 @@
         <script src="script.js"></script>
         <script src="scripts/templates.js"></script>
         <script src="scripts/contacts.js"></script>
+        <script src="scripts/contacts-dialogs.js"></script>
 
         <title>Contacts</title>
     </head>
@@ -57,8 +60,8 @@
                             <div class="contact-content__info" id="contactInfo"></div>
                             <div class="contact-action-menu" id="contactActionMenu">
                                 <div class="contact-action-menu__popup" id="contactActionPopup">
-                                    <button class="contact-action-menu__item" onclick="openEditFromMenu()"><img src="assets/boards/edit.png" alt="" />Edit</button>
-                                    <button class="contact-action-menu__item" onclick="deleteFromMenu()"><img src="assets/boards/delete.png" alt="" />Delete</button>
+                                    <button class="contact-action-menu__item" onclick="openEditFromMenu()"><img src="assets/Boards/edit.png" alt="" />Edit</button>
+                                    <button class="contact-action-menu__item" onclick="deleteFromMenu()"><img src="assets/Boards/delete.png" alt="" />Delete</button>
                                 </div>
                                 <button class="contact-action-menu__btn" id="contactActionBtn">⋮</button>
                             </div>
@@ -89,7 +92,7 @@
                             </div>
                             <div class="add-contact__input">
                                 <input type="email" id="addContactEmail" placeholder="Email" required />
-                                <img src="assets/login/mail.png" alt="Email" />
+                                <img src="assets/Login/mail.png" alt="Email" />
                             </div>
                             <div class="add-contact__input">
                                 <input type="tel" id="addContactPhone" placeholder="Phone" required />
@@ -125,14 +128,14 @@
                             </div>
                             <div class="add-contact__input">
                                 <input type="email" id="editContactEmail" placeholder="Email" required />
-                                <img src="assets/login/mail.png" alt="Email" />
+                                <img src="assets/Login/mail.png" alt="Email" />
                             </div>
                             <div class="add-contact__input">
                                 <input type="tel" id="editContactPhone" placeholder="Phone" required />
                                 <img src="assets/contacts/call.png" alt="Phone" />
                             </div>
                             <div class="add-contact__buttons">
-                                <button type="button" class="add-contact__btn--cancel btn-secondary" id="deleteContactFromEditBtn">Delete <img src="assets/boards/delete.png" alt="Delete" /></button>
+                                <button type="button" class="add-contact__btn--cancel btn-secondary" id="deleteContactFromEditBtn">Delete <img src="assets/Boards/delete.png" alt="Delete" /></button>
                                 <button type="submit" class="add-contact__btn--create btn-primary">Save <img src="assets/add-task/check.png" alt="Save" /></button>
                             </div>
                         </form>
