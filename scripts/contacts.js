@@ -252,6 +252,8 @@ function showContactDetail(key) {
     renderContacts();
     const contactInfo = document.getElementById('contactInfo');
     contactInfo.innerHTML = getContactDetailTemplate(contact);
+    contactInfo.classList.remove('contact-content__info--visible');
+    contactInfo.offsetWidth;
     contactInfo.classList.add('contact-content__info--visible');
     document.getElementById('contactsPanel').classList.add('contacts--detail-open');
     document.getElementById('contactActionMenu').classList.add('contact-action-menu--active');
