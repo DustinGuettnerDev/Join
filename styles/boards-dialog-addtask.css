@@ -23,6 +23,15 @@
     margin-bottom: 12px;
 }
 
+/* Allgemeine Transition für alle Buttons, Links und Inputs auf Boards-Seite */
+button, [type="button"], [type="submit"], a, .btn, .board__add-btn, .board__add-btn--board, .priority-buttons__btn--urgent, .priority-buttons__btn--medium, .priority-buttons__btn--low, .btn-primary, .btn-secondary, .btn-back, .btn-close {
+    transition: background-color 90ms, color 90ms, box-shadow 100ms, border-color 100ms, transform 100ms;
+}
+input, textarea, select {
+    transition: border-color 90ms, box-shadow 90ms, background-color 90ms;
+}
+
+
 .addTaskDialog__title {
     font-size: 48px;
     font-weight: 700;

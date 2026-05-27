@@ -3,6 +3,7 @@
     border-width: 3px;
     padding: 10px 20px;
     border-radius: 10px;
+     transition: background-color 100ms, color 100ms, box-shadow 100ms, border-color 100ms, transform 100ms;
 }
 
 .btn-primary {
