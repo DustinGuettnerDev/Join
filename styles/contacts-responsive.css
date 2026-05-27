@@ -130,10 +130,10 @@
 
     .contacts .contacts-sidebar {
         width: 100%;
-        height: calc(100vh - 80px - 100px);
+        height: 100%;
         border-right: none;
         box-sizing: border-box;
-        padding: 90px 4px 0;
+        padding: 90px 4px var(--height-sidebar-mobile);
     }
 
     .contacts .contact-content {
@@ -208,6 +208,10 @@
         font-size: 24px;
     }
 
+    .contact-card__name {
+        font-size: 28px;
+    }
+
     .contact-card__info h3 {
         font-size: 18px;
     }
@@ -272,9 +276,9 @@
 /* ===== (max-width: 600px) ===== */
 
 @media (max-width: 600px) {
-    /* .contacts-sidebar__groups {
-        padding: 20px 4px 70px;
-    } */
+    .contacts-sidebar__groups {
+            gap: 20px;
+    } 
 
     .contact-group__letter {
         padding-left: 16px;
@@ -343,7 +347,27 @@
         padding: 0 20px 20px 20px;
     }
     .contacts .contacts-sidebar {
-        padding: 0 4px 0;
+        padding: 0 4px var(--height-sidebar-mobile);
+    }
+
+    .contact-card__name {
+        font-size: 22px;
+    }
+
+    .contact-card__avatar {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        font-size: 18px;
+    }
+
+    .contacts--detail-open .contact-content__info {
+        padding: 8px 0 16px;
+        gap: 16px;
+    }
+
+    .contacts--detail-open .contact-content__header {
+        padding: 8px 0 0 0;
     }
 }
 
