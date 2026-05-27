@@ -94,12 +94,12 @@
 }
 
 @keyframes slideInFromRight {
-    from { transform: translateX(60px); opacity: 0; }
+    from { transform: translateX(1440px); opacity: 0; }
     to   { transform: translateX(0);    opacity: 1; }
 }
 
 .contact-content__info--visible {
-    animation: slideInFromRight 0.3s ease;
+    animation: slideInFromRight 0.2s ease;
 }
 
 /* ===== Mobile Layout (max-width: 850px) ===== */
