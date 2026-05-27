@@ -1,4 +1,14 @@
 /**
+ * Shows all cards again if the search input is cleared (live reset only for empty input).
+ * @param {Event} event
+ */
+function resetBoardOnEmptyInput(event) {
+    const input = event.currentTarget;
+    if ((input?.value || '').trim().length === 0) {
+        updateHTML();
+    }
+}
+/**
  * Returns the search input element from the submitted search form.
  * @param {HTMLFormElement} form
  * @returns {HTMLInputElement|null}
@@ -21,8 +31,10 @@ function getNormalizedSearchQuery(searchInput) {
  * @param {string} query
  * @returns {boolean}
  */
+
 function validateSearchQuery(query) {
     if (query) return true;
+    
     Swal.fire({ icon: 'warning', title: 'Oops...', text: 'Bitte gib einen Suchbegriff ein.' });
     return false;
 }
@@ -85,10 +97,7 @@ function searchCard(event) {
     event.preventDefault();
     const searchInput = getSearchInputFromForm(event.currentTarget);
     const query = getNormalizedSearchQuery(searchInput);
-    if (!query) {
-        updateHTML();
-        return;
-    }
+    if (!validateSearchQuery(query)) return; // HIER einsetzen!
     renderSearchResults(query);
 }
 

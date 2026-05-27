@@ -48,6 +48,7 @@
     <script src="scripts/add-task.js"></script>
     <script src="scripts/add-task-dropdown.js"></script>
     <script src="scripts/add-task-subtask.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Boards</title>
 </head>
 
@@ -62,7 +63,7 @@
                     <h1 class="fs-xxlarge-bold fs-xlarge-bold-responsive">Board</h1>
                     <div class="board__search-container">
                         <form class="board__search-form" method="get" onsubmit="searchCard(event)">
-                            <input type="text" placeholder="Find Task" name="search" oninput="clearSearch(event)" onkeydown="resetSearchOnEscape(event)" />
+                            <input type="text" placeholder="Find Task" name="search" oninput="resetBoardOnEmptyInput(event)" onkeydown="resetSearchOnEscape(event)" />
                             <span class="board__search-form__separator"></span>
                             <button class="board__search-form__btn" type="submit" title="Search">
                                 <i class="fa fa-search"></i>
@@ -88,7 +89,7 @@
                             </button>
                     </div>
                     <form class="board__search-form--mobile" method="get" onsubmit="searchCard(event)">
-                        <input type="text" placeholder="Find Task" name="search" oninput="clearSearch(event)" onkeydown="resetSearchOnEscape(event)" />
+                        <input type="text" placeholder="Find Task" name="search" oninput="resetBoardOnEmptyInput(event)" onkeydown="resetSearchOnEscape(event)" />
                         <span class="board__search-form__separator"></span>
                         <button class="board__search-form__btn" type="submit" title="Search"><i class="fa fa-search"></i></button>
                     </form>
