@@ -97,7 +97,7 @@ function searchCard(event) {
     event.preventDefault();
     const searchInput = getSearchInputFromForm(event.currentTarget);
     const query = getNormalizedSearchQuery(searchInput);
-    if (!validateSearchQuery(query)) return; // HIER einsetzen!
+    if (!validateSearchQuery(query)) return;
     renderSearchResults(query);
 }
 

@@ -21,11 +21,14 @@
         margin-top: 90px !important;
     }
 }
-
+@media (min-width: 425px) {
+        .main-content {
+        margin-top: 110px !important;
+    }
+}
 @media (max-width: 425px) {
     .main-content {
         margin-bottom: 54px !important;
-        margin-top: 110px !important;
     }
 
     .board__mobile-header {
