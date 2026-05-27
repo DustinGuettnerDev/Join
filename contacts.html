@@ -1,166 +1,177 @@
 <!doctype html>
 <html lang="de">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" type="image/png" href="assets/logos/favicon.png" />
-        <link rel="icon" type="image/svg+xml" href="assets/logos/favicon.svg" />
-        <link rel="stylesheet" href="style.css" />
-        <link rel="stylesheet" href="styles/components.css" />
-        <link rel="stylesheet" href="styles/contacts.css" />
-        <link rel="stylesheet" href="styles/contacts-modal.css" />
-        <link rel="stylesheet" href="styles/contacts-responsive.css" />
-        <link rel="stylesheet" href="styles/variable.css" />
-        <link rel="stylesheet" href="styles/fonts.css" />
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/logos/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="assets/logos/favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="styles/contacts.css" />
+    <link rel="stylesheet" href="styles/contacts-modal.css" />
+    <link rel="stylesheet" href="styles/contacts-responsive.css" />
+    <link rel="stylesheet" href="styles/variable.css" />
+    <link rel="stylesheet" href="styles/fonts.css" />
 
-        <script src="script.js"></script>
-        <script src="scripts/templates.js"></script>
-        <script src="scripts/contacts.js"></script>
-        <script src="scripts/contacts-dialogs.js"></script>
+    <script src="libs/sweetalert2.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-        <title>Contacts</title>
-    </head>
-    <body
-        onload="
+    <script src="script.js"></script>
+    <script src="scripts/templates.js"></script>
+    <script src="scripts/contacts.js"></script>
+    <script src="scripts/contacts-dialogs.js"></script>
+
+    <title>Contacts</title>
+</head>
+
+<body onload="
             init();
             initContacts();
-        "
-    >
-        <div class="content__container fs-small-regular">
-            <aside id="js-sidebar" class="sidebar fc-lightgrey"></aside>
+        ">
+    <div class="content__container fs-small-regular">
+        <aside id="js-sidebar" class="sidebar fc-lightgrey"></aside>
 
-            <div class="header-main__container">
-                <header id="js-header" class="header"></header>
-                <main class="main-content">
-                    <article class="contacts" id="contactsPanel">
-                        <section class="contacts-sidebar">
-                            <div class="contacts-sidebar__btn">
-                                <button class="contacts-sidebar__add-btn btn-primary" id="addNewContact">
-                                    Add new contact
-                                    <img src="assets/contacts/person-add.png" alt="Add Contact" />
-                                </button>
-                            </div>
-                            <div class="contacts-sidebar__groups" id="contactGroups"></div>
-                            <button class="contacts__fab" id="addContactFab">
+        <div class="header-main__container">
+            <header id="js-header" class="header"></header>
+            <main class="main-content">
+                <article class="contacts" id="contactsPanel">
+                    <section class="contacts-sidebar">
+                        <div class="contacts-sidebar__btn">
+                            <button class="contacts-sidebar__add-btn btn-primary" id="addNewContact">
+                                Add new contact
                                 <img src="assets/contacts/person-add.png" alt="Add Contact" />
                             </button>
-                        </section>
-                        <section class="contact-content">
-                            <div class="contact-content__header">
-                                <div class="contact-content__header-left">
-                                    <h1 class="fs-xxlarge-bold fs-xlarge-bold-responsive">Contacts</h1>
-                                    <hr class="contact-content__divider" />
-                                    <p>Better with a team</p>
-                                </div>
-                                <button class="contacts__back-btn" id="contactsBackBtn" aria-label="Back to contacts"></button>
-                            </div>
-                            <div class="contact-content__info" id="contactInfo"></div>
-                            <div class="contact-action-menu" id="contactActionMenu">
-                                <div class="contact-action-menu__popup" id="contactActionPopup">
-                                    <button class="contact-action-menu__item" onclick="openEditFromMenu()"><img src="assets/boards/edit.png" alt="" />Edit</button>
-                                    <button class="contact-action-menu__item" onclick="deleteFromMenu()"><img src="assets/boards/delete.png" alt="" />Delete</button>
-                                </div>
-                                <button class="contact-action-menu__btn" id="contactActionBtn">⋮</button>
-                            </div>
-                        </section>
-                    </article>
-                </main>
-            </div>
-        </div>
-
-        <div class="add-contact" id="addContactOverlay">
-            <div class="add-contact__dialog">
-                <div class="add-contact__left">
-                    <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
-                    <h2 class="add-contact__title">Add contact</h2>
-                    <p class="add-contact__subtitle">Tasks are better with a team!</p>
-                    <hr class="add-contact__divider" />
-                </div>
-                <button class="add-contact__close btn-close" id="closeAddContactBtn"></button>
-                <div class="add-contact__right">
-                    <div class="add-contact__body">
-                        <div class="add-contact__avatar add-contact__avatar--placeholder" id="addContactAvatar">
-                            <img src="assets/contacts/person.png" alt="Person" class="add-contact__avatar-icon" />
                         </div>
-                        <form class="add-contact__form" id="addContactForm" novalidate>
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="addContactNameInput">
-                                    <input type="text" id="addContactName" placeholder="Name" required />
-                                    <img src="assets/contacts/person.png" alt="Name" />
-                                </div>
-                                <span class="add-contact__error" id="addContactNameError"></span>
+                        <div class="contacts-sidebar__groups" id="contactGroups"></div>
+                        <button class="contacts__fab" id="addContactFab">
+                            <img src="assets/contacts/person-add.png" alt="Add Contact" />
+                        </button>
+                    </section>
+                    <section class="contact-content">
+                        <div class="contact-content__header">
+                            <div class="contact-content__header-left">
+                                <h1 class="fs-xxlarge-bold fs-xlarge-bold-responsive">Contacts</h1>
+                                <hr class="contact-content__divider" />
+                                <p>Better with a team</p>
                             </div>
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="addContactEmailInput">
-                                    <input type="email" id="addContactEmail" placeholder="Email" required />
-                                    <img src="assets/Login/mail.png" alt="Email" />
-                                </div>
-                                <span class="add-contact__error" id="addContactEmailError"></span>
+                            <button class="contacts__back-btn" id="contactsBackBtn"
+                                aria-label="Back to contacts"></button>
+                        </div>
+                        <div class="contact-content__info" id="contactInfo"></div>
+                        <div class="contact-action-menu" id="contactActionMenu">
+                            <div class="contact-action-menu__popup" id="contactActionPopup">
+                                <button class="contact-action-menu__item" onclick="openEditFromMenu()"><img
+                                        src="assets/boards/edit.png" alt="" />Edit</button>
+                                <button class="contact-action-menu__item" onclick="deleteFromMenu()"><img
+                                        src="assets/boards/delete.png" alt="" />Delete</button>
                             </div>
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="addContactPhoneInput">
-                                    <input type="tel" id="addContactPhone" placeholder="Phone" required />
-                                    <img src="assets/contacts/call.png" alt="Phone" />
-                                </div>
-                                <span class="add-contact__error" id="addContactPhoneError"></span>
-                            </div>
-                            <div class="add-contact__buttons">
-                                <button type="button" class="add-contact__btn--cancel btn-secondary" id="cancelAddContactBtn">Cancel <img src="assets/general/close.svg" alt="Cancel" /></button>
-                                <button type="submit" class="add-contact__btn--create btn-primary">Create contact <img src="assets/add-task/check.png" alt="Create" /></button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                            <button class="contact-action-menu__btn" id="contactActionBtn">⋮</button>
+                        </div>
+                    </section>
+                </article>
+            </main>
         </div>
+    </div>
 
-        <div class="add-contact" id="editContactOverlay">
-            <div class="add-contact__dialog">
-                <div class="add-contact__left">
-                    <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
-                    <h2 class="add-contact__title">Edit contact</h2>
-                    <p class="add-contact__subtitle">Tasks are better with a team!</p>
-                    <hr class="add-contact__divider" />
-                </div>
-                <button class="add-contact__close btn-close" id="closeEditContactBtn"></button>
-                <div class="add-contact__right">
-                    <div class="add-contact__body">
-                        <div class="add-contact__avatar" id="editContactAvatar"></div>
-                        <form class="add-contact__form" id="editContactForm" novalidate>
-                            <input type="hidden" id="editContactFirebaseKey" />
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="editContactNameInput">
-                                    <input type="text" id="editContactName" placeholder="Name" required />
-                                    <img src="assets/contacts/person.png" alt="Name" />
-                                </div>
-                                <span class="add-contact__error" id="editContactNameError"></span>
-                            </div>
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="editContactEmailInput">
-                                    <input type="email" id="editContactEmail" placeholder="Email" required />
-                                    <img src="assets/Login/mail.png" alt="Email" />
-                                </div>
-                                <span class="add-contact__error" id="editContactEmailError"></span>
-                            </div>
-                            <div class="add-contact__field">
-                                <div class="add-contact__input" id="editContactPhoneInput">
-                                    <input type="tel" id="editContactPhone" placeholder="Phone" required />
-                                    <img src="assets/contacts/call.png" alt="Phone" />
-                                </div>
-                                <span class="add-contact__error" id="editContactPhoneError"></span>
-                            </div>
-                            <div class="add-contact__buttons">
-                                <button type="button" class="add-contact__btn--cancel btn-secondary" id="deleteContactFromEditBtn">Delete <img src="assets/boards/delete.png" alt="Delete" /></button>
-                                <button type="submit" class="add-contact__btn--create btn-primary">Save <img src="assets/add-task/check.png" alt="Save" /></button>
-                            </div>
-                        </form>
+    <div class="add-contact" id="addContactOverlay">
+        <div class="add-contact__dialog">
+            <div class="add-contact__left">
+                <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
+                <h2 class="add-contact__title">Add contact</h2>
+                <p class="add-contact__subtitle">Tasks are better with a team!</p>
+                <hr class="add-contact__divider" />
+            </div>
+            <button class="add-contact__close btn-close" id="closeAddContactBtn"></button>
+            <div class="add-contact__right">
+                <div class="add-contact__body">
+                    <div class="add-contact__avatar add-contact__avatar--placeholder" id="addContactAvatar">
+                        <img src="assets/contacts/person.png" alt="Person" class="add-contact__avatar-icon" />
                     </div>
+                    <form class="add-contact__form" id="addContactForm" novalidate>
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="addContactNameInput">
+                                <input type="text" id="addContactName" placeholder="Name" required />
+                                <img src="assets/contacts/person.png" alt="Name" />
+                            </div>
+                            <span class="add-contact__error" id="addContactNameError"></span>
+                        </div>
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="addContactEmailInput">
+                                <input type="email" id="addContactEmail" placeholder="Email" required />
+                                <img src="assets/login/mail.png" alt="Email" />
+                            </div>
+                            <span class="add-contact__error" id="addContactEmailError"></span>
+                        </div>
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="addContactPhoneInput">
+                                <input type="tel" id="addContactPhone" placeholder="Phone" required />
+                                <img src="assets/contacts/call.png" alt="Phone" />
+                            </div>
+                            <span class="add-contact__error" id="addContactPhoneError"></span>
+                        </div>
+                        <div class="add-contact__buttons">
+                            <button type="button" class="add-contact__btn--cancel btn-secondary"
+                                id="cancelAddContactBtn">Cancel <img src="assets/general/close.svg"
+                                    alt="Cancel" /></button>
+                            <button type="submit" class="add-contact__btn--create btn-primary">Create contact <img
+                                    src="assets/add-task/check.png" alt="Create" /></button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+
+    <div class="add-contact" id="editContactOverlay">
+        <div class="add-contact__dialog">
+            <div class="add-contact__left">
+                <img src="assets/logos/logo.svg" alt="Join" class="add-contact__logo" />
+                <h2 class="add-contact__title">Edit contact</h2>
+                <p class="add-contact__subtitle">Tasks are better with a team!</p>
+                <hr class="add-contact__divider" />
+            </div>
+            <button class="add-contact__close btn-close" id="closeEditContactBtn"></button>
+            <div class="add-contact__right">
+                <div class="add-contact__body">
+                    <div class="add-contact__avatar" id="editContactAvatar"></div>
+                    <form class="add-contact__form" id="editContactForm" novalidate>
+                        <input type="hidden" id="editContactFirebaseKey" />
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="editContactNameInput">
+                                <input type="text" id="editContactName" placeholder="Name" required />
+                                <img src="assets/contacts/person.png" alt="Name" />
+                            </div>
+                            <span class="add-contact__error" id="editContactNameError"></span>
+                        </div>
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="editContactEmailInput">
+                                <input type="email" id="editContactEmail" placeholder="Email" required />
+                                <img src="assets/login/mail.png" alt="Email" />
+                            </div>
+                            <span class="add-contact__error" id="editContactEmailError"></span>
+                        </div>
+                        <div class="add-contact__field">
+                            <div class="add-contact__input" id="editContactPhoneInput">
+                                <input type="tel" id="editContactPhone" placeholder="Phone" required />
+                                <img src="assets/contacts/call.png" alt="Phone" />
+                            </div>
+                            <span class="add-contact__error" id="editContactPhoneError"></span>
+                        </div>
+                        <div class="add-contact__buttons">
+                            <button type="button" class="add-contact__btn--cancel btn-secondary"
+                                id="deleteContactFromEditBtn">Delete <img src="assets/boards/delete.png"
+                                    alt="Delete" /></button>
+                            <button type="submit" class="add-contact__btn--create btn-primary">Save <img
+                                    src="assets/add-task/check.png" alt="Save" /></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>

@@ -16,13 +16,16 @@
     .editTaskDialog__content--show {
         justify-content: flex-start;
     }
+    .main-content {
+        margin-bottom: 54px !important;
+        margin-top: 90px !important;
+    }
 }
 
 @media (max-width: 425px) {
     .main-content {
         margin-bottom: 54px !important;
-        margin-top: 36px !important;
-        margin-top: 90px !important;
+        margin-top: 110px;
     }
 
     .board__mobile-header {
@@ -63,6 +66,7 @@
 
     .editTaskDialog__header--edit {
         padding: 0 4px;
+        justify-content: flex-end;
     }
 
     .editTaskDialog__input,

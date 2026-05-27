@@ -269,6 +269,7 @@
     .tasks {
         padding: 0;
         max-width: none;
+        gap: 4px;
     }
 
     .headline1 {
@@ -285,15 +286,19 @@
         min-width: 0;
         gap: 6px;
     }
+        .tasks__cells--responsive {
+        height: 120px!important;
+        max-height: 100%!important;
+    }
 }
 
 @media (max-width: 400px) {
-    .tasks__cells--responsive {
-        height: 120px;
-    }
+
+
     .headline1 {
         margin-bottom: 40px;
     }
+
     .tasks__cells--responsive:hover {
         transform: scale(1.02);
     }

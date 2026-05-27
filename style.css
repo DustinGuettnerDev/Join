@@ -273,6 +273,7 @@ select:focus {
 }
 
 @media (max-width: 1200px) {
+
     .sidebar__nav-link,
     .sidebar__legal-information-link {
         padding: 10px 32px;
@@ -283,13 +284,16 @@ select:focus {
     .content__container {
         flex-direction: column;
     }
+
     .header {
         left: 0;
     }
+
     .main-content {
         margin-left: 0;
         padding-top: 16px;
     }
+
     .sidebar {
         order: 1;
         position: fixed;
@@ -302,38 +306,55 @@ select:focus {
         flex-direction: row;
         padding-bottom: 0;
     }
+
     .sidebar__logo {
         display: none;
     }
+
     .sidebar__legal-information {
         display: none;
     }
+
     .sidebar__nav-list {
         flex-direction: row;
         justify-content: space-around;
     }
+
     .sidebar__nav-link {
         padding: 10px;
         border-radius: 20px;
         display: flex;
         flex-direction: column;
     }
+
     .header__help-icon {
         display: none;
     }
+
     .header__headline3 {
         display: none;
     }
+
     .header__mobile-logo {
         display: block;
         width: 44px;
         height: 44px;
         padding-left: 4px;
     }
+    .header__user-button {
+        margin-left: 0;
+        padding-right: 0!important;
+    }
+    
+    .header {
+        padding: 16px 30px !important;
+    }
+
     .header__user-menu {
         transform: translateX(200px);
         transition: transform 125ms ease-in-out;
     }
+
     .header__user-menu-slide-in {
         transform: translateX(0);
     }
@@ -343,10 +364,12 @@ select:focus {
     .sidebar__nav-list {
         gap: 0;
     }
+
     .sidebar__nav-link {
         padding: 5px;
         border-radius: 15px;
     }
+
     .sidebar__nav-link span {
         padding-left: 2px;
         padding-right: 2px;
@@ -357,9 +380,14 @@ select:focus {
     .main-content {
         padding: 16px 25px;
     }
+
     .header__user-button {
         margin-left: 0;
         padding-right: 0;
+    }
+    
+    .header {
+        padding: 16px 25px !important;
     }
 }
 
@@ -368,8 +396,13 @@ select:focus {
         padding: 16px 10px;
         margin-top: 90px !important;
     }
+
     .sidebar__nav-link img {
         width: 36px;
+    }
+    
+    .header {
+        padding: 16px 10px !important;
     }
 }
 
