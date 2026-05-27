@@ -49,7 +49,11 @@ a,
 a *,
 input,
 textarea {
-    transition: background-color 125ms ease-in-out, color 125ms ease-in-out, box-shadow 125ms ease-in-out, transform 125ms ease-in-out;
+    transition:
+        background-color 125ms ease-in-out,
+        color 125ms ease-in-out,
+        box-shadow 125ms ease-in-out,
+        transform 125ms ease-in-out;
 }
 
 a,
@@ -264,7 +268,6 @@ select:focus {
     transform: scale(1.2);
 }
 
-
 /*utilites*/
 
 .opened {
@@ -305,6 +308,9 @@ select:focus {
     .sidebar__logo {
         display: none;
     }
+    .sidebar__nav-img {
+        width: 36px;
+    }
     .sidebar__legal-information {
         display: none;
     }
@@ -332,7 +338,7 @@ select:focus {
     }
     .header__user-button {
         margin-left: 0;
-        padding-right: 0!important;
+        padding-right: 0 !important;
     }
     .header {
         padding: 16px 30px !important;
@@ -351,7 +357,7 @@ select:focus {
         gap: 0;
     }
     .sidebar__nav-link {
-        padding: 5px;
+        padding: 8px 2px;
         border-radius: 15px;
     }
     .sidebar__nav-link span {
@@ -377,9 +383,6 @@ select:focus {
     .main-content {
         padding: 16px 10px;
         margin-top: 90px !important;
-    }
-    .sidebar__nav-link img {
-        width: 36px;
     }
     .header {
         padding: 16px 10px !important;
