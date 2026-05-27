@@ -34,7 +34,6 @@
 .editTaskDialog__content--form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
     flex: 1;
     min-height: 0;
     overflow-y: auto;

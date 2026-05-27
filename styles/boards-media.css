@@ -1,3 +1,21 @@
+/* Animation */
+
+/* Hover for board search button */
+@media (hover: hover) and (pointer: fine) {
+    .board__search-form__btn:hover .fa {
+        transform: scale(1.08);
+        border-color: var(--color-brand-primary);
+        z-index: 1;
+    }
+    .board__search-form__btn:hover .fa::before {
+        opacity: 1;
+        background-color: rgba(42, 54, 71, 0.16);
+    }
+    .board__search-form__btn:hover .fa::after {
+        background-color: var(--color-black);
+    }
+}
+
 /* Schnelle Transition für ausgeblendete Karte neben Move-Panel */
 
 .task--move-panel-open {
@@ -611,9 +629,6 @@
     }
 }
 
-
-/* Bei 1024px (Tablet): board__cards bleibt als Reihe mit 2 Karten pro Zeile */
-
 @media (min-width: 581px) and (max-width: 1024px) {
     .board__cards {
         display: flex !important;
@@ -629,14 +644,6 @@
         flex: 0 0 calc(50% - 6px) !important;
         box-sizing: border-box;
     }
-}
-
-.task-drop-placeholder {
-    margin: 0;
-    border: 1px dashed var(--color-brand-primary, #29abe2);
-    border-radius: 16px;
-    background-color: rgba(41, 171, 226, 0.08);
-    pointer-events: none;
 }
 
 @media (max-width:375px) {

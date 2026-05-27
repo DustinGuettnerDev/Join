@@ -1,3 +1,24 @@
+/* --- Moved from boards.css --- */
+
+.subtask {
+    background: var(--color-neutral-400);
+    border-radius: 8px;
+    padding: 2px 8px;
+    display: inline-block;
+    max-width: 120px;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    font-size: 16px;
+}
+
+.subtask--active,
+.subtask--done {
+    background: var(--color-brand-accent);
+}
+
+/* --- Original styles --- */
+
 .subtask-input {
     display: flex;
     gap: 8px;

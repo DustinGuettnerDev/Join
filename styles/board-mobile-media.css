@@ -1,0 +1,296 @@
+@media (max-width:375px) {
+    ul.subtask-list-task {
+        font-size: 16px !important;
+        padding: 6px 0 !important;
+        margin-top: 0 !important;
+    }
+
+    .task-form__input {
+        font-size: 16px !important;
+    }
+
+    .headline__task-show {
+        font-size: 36px !important;
+    }
+
+    .editTaskDialog__content--show {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 425px) {
+    .main-content {
+        margin-bottom: 54px !important;
+        margin-top: 36px !important;
+        margin-top: 90px !important;
+    }
+
+    .board__mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        width: 100%;
+    }
+
+    .editTaskDialog {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        padding: 12px 10px;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 440px) {
+    .board__list-header .board__headline {
+        padding-left: 0 !important;
+    }
+
+    .editTaskDialog {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        padding: 12px 10px;
+        box-sizing: border-box;
+        overflow: hidden;
+        margin: auto;
+    }
+
+    .editTaskDialog:has(.editTaskDialog__content--form) {
+        height: auto !important;
+        max-height: 95vh !important;
+        padding: 30px 14px;
+    }
+
+    .editTaskDialog__header--edit {
+        padding: 0 4px;
+    }
+
+    .editTaskDialog__input,
+    .editTaskDialog .task-form__textarea,
+    .editTaskDialog .task-form__input-date,
+    .editTaskDialog .task-form__input-edit,
+    .editTaskDialog .task-form__select,
+    .editTaskDialog .selectBox,
+    .editTaskDialog .selectBox__input,
+    .editTaskDialog .multiselect,
+    .editTaskDialog .subtask-input {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    .editTaskDialog .priority-buttons {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .editTaskDialog .priority-btn-color-none {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+        height: 42px;
+        padding: 0 4px;
+    }
+
+    .editTaskDialog .prioText {
+        font-size: 16px !important;
+        padding: 0;
+        margin: 0;
+    }
+
+    .editTaskDialog .extrasize {
+        font-size: 13px !important;
+        width: 16px;
+        height: 16px;
+        margin-right: 0;
+    }
+
+    .editTaskDialog .priority-buttons__icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .editTaskDialog .editTaskDialog__content--form {
+        max-height: calc(95vh - 150px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 4px;
+    }
+
+    .editTaskDialog .subtask-container {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .editTaskDialog .assigned-users-list-edit {
+        max-height: 69px;
+    }
+
+    .editTaskDialog__footer-edit {
+        padding-top: 8px;
+    }
+
+    .editTaskDialog__save-btn {
+        height: 36px;
+        width: 80px;
+        font-size: 16px;
+    }
+
+    .task-meta-block {
+        gap: 4px !important;
+    }
+}
+
+
+@media (max-width: 580px) {
+    .task {
+        cursor: default !important;
+    }
+
+    .board__cards {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        overflow-x: auto;
+        overflow-y: visible;
+        width: 100%;
+        padding: 8px 4px 12px;
+        scrollbar-width: none;
+        /* Firefox */
+        -webkit-overflow-scrolling: touch;
+        /* iOS */
+        scroll-snap-type: x mandatory;
+    }
+
+    .board__cards::-webkit-scrollbar {
+        display: none;
+        /* Chrome, Safari, Opera */
+    }
+
+    .task {
+        flex: 0 0 200px;
+        width: 200px;
+        min-width: 180px;
+        max-width: 90vw;
+        scroll-snap-align: start;
+    }
+
+    .task--touch-dragging {
+        scroll-snap-align: center;
+        scroll-snap-stop: always;
+        touch-action: none;
+    }
+
+    .board__mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 640px) {
+    .board__mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        width: 100%;
+    }
+
+    .board__search-form--mobile {
+        width: 100%;
+    }
+
+    .task__moveto-btn {
+        border: 2px solid var(--color-brand-primary);
+        border-radius: 8px;
+        color: var(--color-brand-primary);
+        width: 25px;
+        height: 25px;
+        padding: 0;
+        font-weight: 700;
+        gap: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .task-form__required-note--mobile {
+        display: flex;
+        font-size: 16px;
+        margin-top: 8px;
+    }
+
+    .board__lists {
+        gap: 0;
+    }
+
+    .board__headline {
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    .category__header {
+        font-size: 24px !important;
+    }
+
+    .task-form__footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .task__description {
+        font-size: 16px;
+    }
+
+    .task-move-panel--open {
+        opacity: 1 !important;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .subtask-container {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+
+    .task:active {
+        transform: rotate(0deg) translateX(0);
+    }
+
+    .editTaskDialog {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        height: fit-content !important;
+        max-height: 95vh !important;
+        padding: 20px 25px;
+        box-sizing: border-box;
+        overflow: hidden;
+        margin: auto;
+    }
+
+    .editTaskDialog__content--show {
+        max-height: calc(90vh - 160px);
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .editTaskDialog__content--show .category__description {
+        max-height: 22vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        padding-right: 4px;
+    }
+}

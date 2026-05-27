@@ -347,3 +347,15 @@ async function deleteTask(taskId) {
     updateHTML();
     closeDialog();
 }
+
+/**
+ * Prevent body scroll when any dialog is open
+ */
+function updateBodyScrollLock() {
+    const dialogOpen = document.querySelector('.editTaskDialog[open], .addTaskDialog[open], .showTaskDialog[open], dialog[open]');
+    if (dialogOpen) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}

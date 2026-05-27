@@ -380,31 +380,3 @@
     font-size: 16px;
     padding: 6px;
 }
-
-.task-form__inputAddTask {
-    width: 270px;
-    border-radius: 10px;
-    border: 1px solid var(--color-neutral-400);
-    font-size: 16px;
-    padding: 8px;
-}
-
-.task-form__inputDate {
-    width: 270px;
-    border-radius: 10px;
-    border: 1px solid var(--color-neutral-400);
-    font-size: 16px;
-    padding: 8px;
-}
-
-.task-form__required-note--mobile {
-    display: none;
-}
-
-.task-form__required-note {
-    font-size: 16px;
-    color: #2a3647;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
