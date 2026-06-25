@@ -92,15 +92,38 @@ function loadContactsFromLocalStorage() {
  */
 async function syncContactsFromFirebaseToLocalStorage() {
     try {
+        if (typeof isFirebaseContactsReadDisabled === 'function' && isFirebaseContactsReadDisabled()) {
+            return false;
+        }
+
         const response = await fetch(`${firebaseBaseUrl}contacts.json`);
+
+        if (response.status === 401 || response.status === 403) {
+            if (typeof disableFirebaseContactsRead === 'function') disableFirebaseContactsRead();
+            console.warn(`Firebase contact sync unauthorized (HTTP ${response.status}). Using local contacts only.`);
+            return false;
+        }
+
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const remoteContacts = await response.json() || {};
-        localStorage.setItem('contacts', JSON.stringify(remoteContacts));
+        const mergedContacts = mergeRemoteContactsIntoLocal(remoteContacts);
+        localStorage.setItem('contacts', JSON.stringify(mergedContacts));
         return true;
     } catch (error) {
         console.error('Failed to load contacts from Firebase:', error);
         return false;
     }
+}
+
+
+/**
+ * Merges remote contacts into local contacts while keeping local entries.
+ * @param {object} remoteContacts
+ * @returns {object}
+ */
+function mergeRemoteContactsIntoLocal(remoteContacts) {
+    const localContacts = getLocalStorageData();
+    return Object.assign({}, remoteContacts || {}, localContacts || {});
 }
 
 

@@ -280,10 +280,112 @@ function onContactAdded(key, contact) {
 
 
 /**
+ * Returns true when a Firebase response indicates missing write permissions.
+ * @param {Response} response
+ * @returns {boolean}
+ */
+function isPermissionDeniedResponse(response) {
+    return !!response && (response.status === 401 || response.status === 403);
+}
+
+
+/**
+ * Creates a deterministic local key for contacts when remote writes are not allowed.
+ * @returns {string}
+ */
+function buildLocalContactKey() {
+    return `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+
+/**
+ * Detects whether a contact key belongs to local-only fallback data.
+ * @param {string} key
+ * @returns {boolean}
+ */
+function isLocalContactKey(key) {
+    return typeof key === 'string' && key.startsWith('local-');
+}
+
+
+/**
+ * Tries to create a contact in Firebase via REST and falls back to a local key on permission errors.
+ * @param {{ name: string, email: string, phone: string }} contact
+ * @returns {Promise<string>} The Firebase key or a generated local fallback key.
+ */
+async function createContactRemoteOrLocal(contact) {
+    const response = await fetch(`${firebaseBaseUrl}contacts.json`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact),
+    });
+
+    if (isPermissionDeniedResponse(response)) {
+        console.warn('Contact create unauthorized (HTTP ' + response.status + '). Saving locally only.');
+        return buildLocalContactKey();
+    }
+
+    if (!response.ok) throw new Error(`Contact create failed: HTTP ${response.status}`);
+    const payload = await response.json();
+    if (!payload?.name) return buildLocalContactKey();
+    return payload.name;
+}
+
+
+/**
+ * Tries to update a contact in Firebase via REST.
+ * Returns false when writes are forbidden and local fallback should be used.
+ * @param {string} key
+ * @param {{ name: string, email: string, phone: string }} contact
+ * @returns {Promise<boolean>}
+ */
+async function updateContactRemote(key, contact) {
+    if (isLocalContactKey(key)) return false;
+
+    const response = await fetch(`${firebaseBaseUrl}contacts/${key}.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contact),
+    });
+
+    if (isPermissionDeniedResponse(response)) {
+        console.warn('Contact update unauthorized (HTTP ' + response.status + '). Saving locally only.');
+        return false;
+    }
+
+    if (!response.ok) throw new Error(`Contact update failed: HTTP ${response.status}`);
+    return true;
+}
+
+
+/**
+ * Tries to delete a contact in Firebase via REST.
+ * Returns false when writes are forbidden and local fallback should be used.
+ * @param {string} key
+ * @returns {Promise<boolean>}
+ */
+async function deleteContactRemote(key) {
+    if (isLocalContactKey(key)) return false;
+
+    const response = await fetch(`${firebaseBaseUrl}contacts/${key}.json`, {
+        method: 'DELETE',
+    });
+
+    if (isPermissionDeniedResponse(response)) {
+        console.warn('Contact deletion unauthorized (HTTP ' + response.status + '). Removing locally only.');
+        return false;
+    }
+
+    if (!response.ok) throw new Error(`Contact deletion failed: HTTP ${response.status}`);
+    return true;
+}
+
+
+/**
  * Reads the add contact form and pushes the new contact to Firebase.
  * @param {Event} event - The form submit event.
  */
-function handleAddContactSubmit(event) {
+async function handleAddContactSubmit(event) {
     event.preventDefault();
     if (!validateContactForm('add')) return;
     const newContact = {
@@ -291,9 +393,12 @@ function handleAddContactSubmit(event) {
         email: document.getElementById('addContactEmail').value.trim(),
         phone: document.getElementById('addContactPhone').value.trim(),
     };
-    db.ref('contacts').push(newContact)
-        .then(function(snapshot) { onContactAdded(snapshot.key, newContact); })
-        .catch(showFirebaseError);
+    try {
+        const key = await createContactRemoteOrLocal(newContact);
+        onContactAdded(key, newContact);
+    } catch (error) {
+        showFirebaseError(error);
+    }
 }
 
 
@@ -357,7 +462,7 @@ function onContactEdited(key, contact) {
  * Reads the edit form and saves the updated contact data to Firebase.
  * @param {Event} event - The form submit event.
  */
-function handleEditContactSubmit(event) {
+async function handleEditContactSubmit(event) {
     event.preventDefault();
     if (!validateContactForm('edit')) return;
     const key = document.getElementById('editContactFirebaseKey').value;
@@ -366,9 +471,12 @@ function handleEditContactSubmit(event) {
         email: document.getElementById('editContactEmail').value.trim(),
         phone: document.getElementById('editContactPhone').value.trim(),
     };
-    db.ref('contacts/' + key).update(updated)
-        .then(function() { onContactEdited(key, updated); })
-        .catch(showFirebaseError);
+    try {
+        await updateContactRemote(key, updated);
+        onContactEdited(key, updated);
+    } catch (error) {
+        showFirebaseError(error);
+    }
 }
 
 
@@ -411,10 +519,13 @@ function onContactDeleted(key) {
  * Deletes a contact from Firebase by its key.
  * @param {string} key - The Firebase key of the contact to delete.
  */
-function deleteContact(key) {
-    db.ref('contacts/' + key).remove()
-        .then(function() { onContactDeleted(key); })
-        .catch(showFirebaseError);
+async function deleteContact(key) {
+    try {
+        await deleteContactRemote(key);
+        onContactDeleted(key);
+    } catch (error) {
+        showFirebaseError(error);
+    }
 }
 
 

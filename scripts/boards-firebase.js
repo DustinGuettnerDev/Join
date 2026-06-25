@@ -8,7 +8,7 @@
  * @returns {boolean}
  */
 function isUnauthorizedResponse(response) {
-    return response && response.status === 401;
+    return response && (response.status === 401 || response.status === 403);
 }
 
 /**
@@ -53,9 +53,14 @@ async function postTaskToFirebase(task) {
  */
 async function resolveFirebaseKeyByTaskId(taskId) {
     try {
+        if (typeof isFirebaseBoardsReadDisabled === 'function' && isFirebaseBoardsReadDisabled()) {
+            return null;
+        }
+
         const response = await fetch(`${BOARD_FIREBASE_BASE_URL}boards.json`);
         if (isUnauthorizedResponse(response)) {
-            console.warn('Firebase key resolution unauthorized (HTTP 401). Task not synced.');
+            if (typeof disableFirebaseBoardsRead === 'function') disableFirebaseBoardsRead();
+            console.warn(`Firebase key resolution unauthorized (HTTP ${response.status}). Task not synced.`);
             return null;
         }
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -96,7 +101,7 @@ async function patchTaskCategoryToFirebase(firebaseKey, task) {
         body: buildCategoryPatchBody(task),
     });
     if (isUnauthorizedResponse(response)) {
-        console.warn('Firebase category update unauthorized (HTTP 401). Using local storage only.');
+        console.warn(`Firebase category update unauthorized (HTTP ${response.status}). Using local storage only.`);
         return;
     }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -148,7 +153,7 @@ async function patchTaskUpdateToFirebase(firebaseKey, taskBody) {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: taskBody
     });
     if (isUnauthorizedResponse(response)) {
-        console.warn('Firebase task update unauthorized (HTTP 401). Using local storage only.');
+        console.warn(`Firebase task update unauthorized (HTTP ${response.status}). Using local storage only.`);
         return;
     }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -202,7 +207,7 @@ async function sendDeleteTaskRequest(firebaseKey) {
         method: 'DELETE',
     });
     if (isUnauthorizedResponse(response)) {
-        console.warn('Firebase task deletion unauthorized (HTTP 401). Using local storage only.');
+        console.warn(`Firebase task deletion unauthorized (HTTP ${response.status}). Using local storage only.`);
         return { ok: true, attempted: true };
     }
     return { ok: response.ok, attempted: true };
@@ -230,9 +235,14 @@ async function deleteTaskFromFirebase(task) {
  * @returns {Promise<object|null>} Map of Firebase key to task, or null when unauthorized.
  */
 async function fetchBoardsFromFirebase() {
+    if (typeof isFirebaseBoardsReadDisabled === 'function' && isFirebaseBoardsReadDisabled()) {
+        return null;
+    }
+
     const response = await fetch(`${BOARD_FIREBASE_BASE_URL}boards.json`);
     if (isUnauthorizedResponse(response)) {
-        console.warn('Firebase board sync unauthorized (HTTP 401). Using local board tasks only.');
+        if (typeof disableFirebaseBoardsRead === 'function') disableFirebaseBoardsRead();
+        console.warn(`Firebase board sync unauthorized (HTTP ${response.status}). Using local board tasks only.`);
         return null;
     }
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

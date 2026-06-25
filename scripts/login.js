@@ -13,111 +13,9 @@ const firebaseConfig = {
 /** Initializes Firebase and sets up the Realtime Database reference. */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
+let authInitPromise = null;
 document.body.style.visibility = "visible";
-
-
-/**
- * Plays the intro logo animation, then reveals the rest of the page.
- */
-function playIntroAnimation() {
-    try {
-        const body = document.body;
-        const introLogo = document.querySelector(".logo-intro");
-        if (!introLogo) return;
-
-        body.classList.add("intro-active");
-
-        const reveal = () => {
-            body.classList.remove("intro-active");
-            introLogo.removeEventListener("animationend", onEnd);
-        };
-        const onEnd = (event) => {
-            if (event.animationName === "logoFly") reveal();
-        };
-
-        introLogo.addEventListener("animationend", onEnd);
-        // Fallback, falls animationend nicht feuert
-        setTimeout(reveal, 2100);
-    } catch (error) {
-        console.error("Intro-Animation fehlgeschlagen:", error);
-        document.body.classList.remove("intro-active");
-    }
-}
-playIntroAnimation();
-
-
-/**
- * Validates the format of an email address.
- * @param {string} email
- * @returns {boolean}
- */
-function isValidEmail(email) {
-    return /^[^\s@]+@[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)+$/.test(email);
-}
-
-
-/**
- * Shows a toast message for 2 seconds, then calls callback if provided.
- * @param {string} message
- * @param {Function} callback
- */
-function showToast(message, callback) {
-    let toast = document.getElementById("joinToast");
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "joinToast";
-        toast.className = "toast";
-        document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.classList.add("toast--visible");
-    setTimeout(function() {
-        toast.classList.remove("toast--visible");
-        if (callback) setTimeout(callback, 300);
-    }, 2000);
-}
-
-
-/**
- * Marks an input field as invalid and shows an error message.
- * @param {string} inputId
- * @param {string} errorId
- * @param {string} message
- */
-function showFieldError(inputId, errorId, message) {
-    const input = document.getElementById(inputId);
-    const wrapper = input ? input.closest(".input__wrapper") : null;
-    const errorElement = document.getElementById(errorId);
-    if (wrapper) wrapper.classList.add("input--error");
-    if (errorElement) errorElement.textContent = message;
-}
-
-
-/** Removes all error states and messages from input fields. */
-function clearAllErrors() {
-    const errorWrappers = document.querySelectorAll(".input__wrapper.input--error");
-    errorWrappers.forEach(function(wrapper) {
-        wrapper.classList.remove("input--error");
-    });
-    const errorTexts = document.querySelectorAll(".error__text");
-    errorTexts.forEach(function(errorText) {
-        errorText.textContent = '';
-    });
-}
-
-
-/**
- * Validates the email format for login.
- * @param {string} email
- * @returns {boolean}
- */
-function validateLoginEmail(email) {
-    if (!isValidEmail(email)) {
-        showFieldError("email", "emailError", "Please enter a valid email address.");
-        return false;
-    }
-    return true;
-}
 
 
 /** Reads email and password from the form, validates them, and triggers the login flow. */
@@ -126,14 +24,21 @@ function loginUser() {
     const password = document.getElementById("password").value.trim();
     clearAllErrors();
     if (!validateLoginInputs(email, password)) return;
-    db.ref("users").once("value", function(snapshot) {
-        const loginSuccess = checkIfUserExistsForLogin(snapshot, email, password);
-        if (loginSuccess) {
-            loadDataToLocalStorage();
-        } else {
-            checkLoginResults(false);
-        }
-    });
+    runLoginFlow(email, password);
+}
+
+function runLoginFlow(email, password) {
+    ensureFirebaseSession()
+        .then(function() { return fetchUsersByEmail(email); })
+        .then(function(snapshot) { return processLoginSnapshot(snapshot, password); })
+        .catch(function(error) { handleLoginReadError(error, email, password); });
+}
+
+function processLoginSnapshot(snapshot, password) {
+    if (checkIfUserExistsForLogin(snapshot, password)) {
+        return loadDataToLocalStorage();
+    }
+    checkLoginResults(false);
 }
 
 
@@ -157,15 +62,14 @@ function validateLoginInputs(email, password) {
 /**
  * Checks credentials against the DB snapshot and stores the user in localStorage.
  * @param {object} snapshot
- * @param {string} email
  * @param {string} password
  * @returns {boolean}
  */
-function checkIfUserExistsForLogin(snapshot, email, password) {
+function checkIfUserExistsForLogin(snapshot, password) {
     let loginSuccess = false;
     snapshot.forEach(function(userSnapshot) {
         const userData = userSnapshot.val();
-        if (userData.email == email && userData.password == password) {
+        if (userData.password == password) {
             loginSuccess = true;
             localStorage.setItem("currentUserName", userData.name);
             localStorage.setItem("currentUserEmail", userData.email);
@@ -190,14 +94,76 @@ function checkLoginResults(loginSuccess) {
 }
 
 
+
+/**
+ * Handles database read errors during login and shows a user-friendly message.
+ * @param {Error} error
+ * @param {string} email
+ * @param {string} password
+ */
+function handleLoginReadError(error, email, password) {
+    if (isFirebaseAdminRestrictedOperation(error)) {
+        handleAdminRestrictedLogin(email, password);
+        return;
+    }
+    console.error("Login data could not be loaded from Firebase:", error);
+    showFieldError("email", "emailError", "Login is currently unavailable. Please try again later.");
+    showFieldError("password", "passwordError", "Login is currently unavailable. Please try again later.");
+}
+
+function handleAdminRestrictedLogin(email, password) {
+    console.warn("Firebase anonymous auth is blocked by project settings.");
+    if (!loginWithLocalUser(email, password)) {
+        checkLoginResults(false);
+        return;
+    }
+    loadDataToLocalStorage().catch(function(localError) { completeLocalLoginFallback(localError); });
+}
+
+function completeLocalLoginFallback(localError) {
+    console.warn("Local fallback data load failed:", localError);
+    setLocalDataDefaults();
+    checkLoginResults(true);
+}
+
+
 /** Loads boards and contacts from DB into localStorage, then triggers login redirect. */
-function loadDataToLocalStorage() {
-    db.ref("/").once("value", function(snapshot) {
-        const allData = snapshot.val();
-        localStorage.setItem("boards", JSON.stringify(allData.boards));
-        localStorage.setItem("contacts", JSON.stringify(allData.contacts));
-        checkLoginResults(true);
-    });
+async function loadDataToLocalStorage() {
+    try {
+        await ensureFirebaseSession();
+    } catch (error) {
+        if (isFirebaseAdminRestrictedOperation(error)) {
+            setLocalDataDefaults();
+            checkLoginResults(true);
+            return;
+        }
+        throw error;
+    }
+
+    const results = await Promise.allSettled([
+        db.ref("boards").once("value"),
+        db.ref("contacts").once("value"),
+    ]);
+
+    const boardsResult = results[0];
+    const contactsResult = results[1];
+
+    if (boardsResult.status === "fulfilled") {
+        localStorage.setItem("boards", JSON.stringify(boardsResult.value.val() || {}));
+    } else {
+        console.warn("Boards could not be loaded from Firebase:", boardsResult.reason);
+        localStorage.setItem("boards", JSON.stringify({}));
+    }
+
+    if (contactsResult.status === "fulfilled") {
+        const mergedContacts = mergeContactsWithLocal(contactsResult.value.val() || {});
+        localStorage.setItem("contacts", JSON.stringify(mergedContacts));
+    } else {
+        console.warn("Contacts could not be loaded from Firebase:", contactsResult.reason);
+        ensureContactsStorage();
+    }
+
+    checkLoginResults(true);
 }
 
 
@@ -205,7 +171,11 @@ function loadDataToLocalStorage() {
 function guestLogin() {
     localStorage.setItem("currentUserName", "Gast");
     localStorage.setItem("currentUserEmail", "Gast@Gast.com");
-    loadDataToLocalStorage();
+    loadDataToLocalStorage().catch(function(error) {
+        console.warn("Guest data load failed, using local defaults:", error);
+        setLocalDataDefaults();
+        checkLoginResults(true);
+    });
 }
 
 
@@ -214,99 +184,8 @@ function registerUser() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value.trim();
     const passwordconfirm = document.getElementById("passwordconfirm").value.trim();
-
     if (!validateInputs(email, password, passwordconfirm)) return;
     checkIfUserExists();
-}
-
-
-/**
- * Validates that the name field is not empty and contains letters.
- * @returns {boolean}
- */
-function validateName() {
-    const name = document.getElementById("name").value.trim();
-    if (!name) {
-        showFieldError("name", "nameError", "Please enter your name.");
-        return false;
-    }
-    if (!/[a-zA-ZÀ-ÿ]/.test(name)) {
-        showFieldError("name", "nameError", "Your name must contain letters.");
-        return false;
-    }
-    return true;
-}
-
-
-/**
- * Toggles the password-confirm error state based on whether passwords match.
- * @param {boolean} passwordsMatch
- */
-function applyPasswordMatchError(passwordsMatch) {
-    const passwordError = document.getElementById("passwordError");
-    const passwordconfirmWrapper = document.getElementById("passwordconfirmWrapper");
-    passwordconfirmWrapper.classList.toggle("input--error", !passwordsMatch);
-    if (passwordError) passwordError.textContent = passwordsMatch ? '' : "Your passwords don't match. Please try again.";
-}
-
-
-/**
- * Validates that password is non-empty and matches the confirmation.
- * @param {string} password
- * @param {string} passwordconfirm
- * @returns {boolean}
- */
-function validatePasswordMatch(password, passwordconfirm) {
-    let isValid = true;
-    if (!password.trim()) {
-        showFieldError("password", "passwordFieldError", "Please enter a password.");
-        isValid = false;
-    }
-    if (!passwordconfirm.trim()) {
-        showFieldError("passwordconfirm", "passwordError", "Please confirm your password.");
-        isValid = false;
-    }
-    if (isValid && password.trim() !== passwordconfirm.trim()) {
-        applyPasswordMatchError(false);
-        isValid = false;
-    }
-    return isValid;
-}
-
-
-/**
- * Validates all registration inputs (name, email, privacy, passwords).
- * @param {string} email
- * @param {string} password
- * @param {string} passwordconfirm
- * @returns {boolean}
- */
-function validateInputs(email, password, passwordconfirm) {
-    clearAllErrors();
-    let isValid = true;
-    if (!validateName()) isValid = false;
-    if (!isValidEmail(email)) {
-        showFieldError("email", "emailError", "Please enter a valid email address.");
-        isValid = false;
-    }
-    if (!checkPrivacy()) isValid = false;
-    if (!validatePasswordMatch(password, passwordconfirm)) isValid = false;
-    return isValid;
-}
-
-
-/**
- * Checks the privacy checkbox and shows an error if unchecked.
- * @returns {boolean}
- */
-function checkPrivacy() {
-    const privacy = document.getElementById("privacy");
-    if (!privacy.checked) {
-        const privacyError = document.getElementById("privacyError");
-        if (privacyError) privacyError.textContent = "Please accept the Privacy Policy.";
-        return false;
-    }
-    return true;
 }
 
 
@@ -315,38 +194,32 @@ function checkIfUserExists() {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value.trim();
-    db.ref("users").once("value", function(snapshot) {
-        const userExists = findExistingUser(snapshot, email);
-        if (userExists === true) {
-            userAlreadyExistsError();
-        } else {
-            saveUser(name, email, password);
-        }
-    });
+    runRegistrationPrecheck(name, email, password);
+}
+
+function runRegistrationPrecheck(name, email, password) {
+    ensureFirebaseSession()
+        .then(function() { return fetchUsersByEmail(email); })
+        .then(function(snapshot) { processRegistrationSnapshot(snapshot, name, email, password); })
+        .catch(function(error) { handleRegistrationReadError(error, name, email, password); });
+}
+
+function processRegistrationSnapshot(snapshot, name, email, password) {
+    if (findExistingUser(snapshot)) {
+        userAlreadyExistsError();
+        return;
+    }
+    saveUser(name, email, password);
 }
 
 
 /**
  * Returns true if any user in the snapshot has the given email.
  * @param {object} snapshot
- * @param {string} email
  * @returns {boolean}
  */
-function findExistingUser(snapshot, email) {
-    let userExists = false;
-    snapshot.forEach(function(userSnapshot) {
-        const userData = userSnapshot.val();
-        if (userData.email === email) {
-            userExists = true;
-        }
-    });
-    return userExists;
-}
-
-
-/** Shows an error indicating the email is already registered. */
-function userAlreadyExistsError() {
-    showFieldError("email", "emailError", "This email address is already registered.");
+function findExistingUser(snapshot) {
+    return snapshot.exists();
 }
 
 
@@ -356,26 +229,118 @@ function userAlreadyExistsError() {
  * @param {string} email
  * @param {string} password
  */
-function saveUser(name, email, password) {
-    db.ref("users")
-        .push({ name: name, email: email, password: password })
-        .then(function() {
-            return db.ref("contacts").push({ name: name, email: email, phone: "" });
-        })
-        .then(saveUserSuccess)
-        .catch(saveUserError);
+async function saveUser(name, email, password) {
+    try {
+        await ensureFirebaseSession();
+        await db.ref("users").push({ name: name, email: email, password: password });
+
+        try {
+            await db.ref("contacts").push({ name: name, email: email, phone: '' });
+        } catch (error) {
+            console.warn('Contact bootstrap during registration failed:', error);
+        }
+
+        saveUserSuccess();
+    } catch (error) {
+        if (isFirebaseAdminRestrictedOperation(error)) {
+            if (localUserExists(email)) {
+                userAlreadyExistsError();
+                return;
+            }
+            saveUserLocally(name, email, password);
+            return;
+        }
+        saveUserError();
+    }
 }
 
 
-/** Shows a success toast and redirects to the login page. */
-function saveUserSuccess() {
-    showToast("You Signed Up successfully", function() {
-        window.location.href = "index.html";
-    });
+/**
+ * Handles database read errors during registration checks.
+ * @param {Error} error
+ * @param {string} name
+ * @param {string} email
+ * @param {string} password
+ */
+function handleRegistrationReadError(error, name, email, password) {
+    if (isFirebaseAdminRestrictedOperation(error)) {
+        handleRegistrationAdminRestriction(name, email, password);
+        return;
+    }
+    if (isFirebasePermissionDenied(error)) {
+        console.warn("Registration pre-check denied by Firebase rules. Continuing with direct registration write.");
+        saveUser(name, email, password);
+        return;
+    }
+    console.error("Registration pre-check could not be loaded from Firebase:", error);
+    showFieldError("email", "emailError", "Registration is currently unavailable. Please try again later.");
+}
+
+function handleRegistrationAdminRestriction(name, email, password) {
+    console.warn("Firebase anonymous auth is blocked by project settings.");
+    if (localUserExists(email)) {
+        userAlreadyExistsError();
+        return;
+    }
+    saveUserLocally(name, email, password);
 }
 
 
-/** Shows an error if saving the new user to the DB failed. */
-function saveUserError() {
-    showFieldError("email", "emailError", "Error during registration. Please try again.");
+/**
+ * Detects Firebase permission-denied errors across SDK error shapes.
+ * @param {Error} error
+ * @returns {boolean}
+ */
+function isFirebasePermissionDenied(error) {
+    if (!error) return false;
+    const code = String(error.code || "").toLowerCase();
+    const message = String(error.message || "").toLowerCase();
+    return code.includes("permission") || message.includes("permission_denied");
+}
+
+
+/**
+ * Detects Firebase auth/admin-restricted-operation errors.
+ * @param {Error} error
+ * @returns {boolean}
+ */
+function isFirebaseAdminRestrictedOperation(error) {
+    if (!error) return false;
+    const code = String(error.code || "").toLowerCase();
+    const message = String(error.message || "").toLowerCase();
+    return code.includes("admin-restricted-operation") || message.includes("admin-restricted-operation");
+}
+
+
+/**
+ * Ensures an authenticated Firebase session for database access.
+ * @returns {Promise<object|null>}
+ */
+function ensureFirebaseSession() {
+    if (auth.currentUser) return Promise.resolve(auth.currentUser);
+    if (!authInitPromise) authInitPromise = startAnonymousSession();
+    return authInitPromise;
+}
+
+function startAnonymousSession() {
+    return auth.signInAnonymously()
+        .then(function(result) { return result.user || auth.currentUser; })
+        .catch(function(error) {
+            authInitPromise = null;
+            throw error;
+        });
+}
+
+
+/**
+ * Queries users by email instead of reading the whole users tree.
+ * @param {string} email
+ * @returns {Promise<object>}
+ */
+function fetchUsersByEmail(email) {
+    return db.ref("users")
+        .orderByChild("email")
+        .equalTo(email)
+        .limitToFirst(1)
+        .once("value");
 }

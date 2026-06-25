@@ -7,6 +7,9 @@ let userMenuCloseTimer;
 
 /** Base URL for all Firebase Realtime Database REST requests. */
 const firebaseBaseUrl = "https://join-5bd8d-default-rtdb.europe-west1.firebasedatabase.app/";
+const firebaseBoardsWriteDisabledKey = 'firebaseBoardsWriteDisabled';
+const firebaseBoardsReadDisabledKey = 'firebaseBoardsReadDisabled';
+const firebaseContactsReadDisabledKey = 'firebaseContactsReadDisabled';
 
 /**
  * Ordered list of colors used to generate deterministic contact avatars.
@@ -60,17 +63,6 @@ function addSidebar() {
     sidebar.innerHTML = isLoggedIn ? getSidebarTemplate() : getSidebarNotLoggedInTemplate();
 }
 
-/**
- * Injects the shared sidebar and header templates into the current page.
- */
-function injectSharedTemplates() {
-    const isLoggedIn = localStorage.getItem("currentUserEmail") !== null;
-    document.getElementById("js-sidebar").innerHTML = isLoggedIn ? getSidebarTemplate() : getSidebarNotLoggedInTemplate();
-    document.getElementById("js-header").innerHTML = getHeaderTemplate();
-    document.getElementById("js-user-menu-button").innerHTML = getHeaderCircleUserTemplate();
-    document.getElementById("js-header-user-menu").innerHTML = getHeaderUserMenuTemplate();
-}
-
 mobileQuery.addEventListener("change", () => {
     applyUserMenuState();
 });
@@ -88,19 +80,9 @@ function toggleUserMenu() {
  */
 function applyUserMenuState() {
     const userMenu = document.getElementById("js-header-user-menu");
-
     resetUserMenuCloseTimer();
-
-    if (!mobileQuery.matches) {
-        toggleDesktopUserMenu(userMenu);
-        return;
-    }
-
-    if (userMenuOpen) {
-        openMobileUserMenu(userMenu);
-        return;
-    }
-
+    if (!mobileQuery.matches) return toggleDesktopUserMenu(userMenu);
+    if (userMenuOpen) return openMobileUserMenu(userMenu);
     closeMobileUserMenu(userMenu);
 }
 
@@ -171,8 +153,7 @@ function redirectToLoginIfNotLoggedIn() {
 function logout() {
     localStorage.removeItem("currentUserEmail");
     localStorage.removeItem("currentUserName");
-    localStorage.removeItem("contacts");
-    localStorage.removeItem("boards");
+    sessionStorage.removeItem("fromLogin");
 }
 
 /**
@@ -298,13 +279,75 @@ function showSuccessToast(message) {
         customClass: { container: 'success-toast-container' },
     });
 }
+
+
+/**
+ * Returns whether board writes to Firebase are currently disabled due to permission errors.
+ * @returns {boolean}
+ */
+function isFirebaseBoardsWriteDisabled() {
+    return localStorage.getItem(firebaseBoardsWriteDisabledKey) === '1';
+}
+
+
+/**
+ * Persists a flag that disables future board write attempts to Firebase.
+ */
+function disableFirebaseBoardsWrite() {
+    localStorage.setItem(firebaseBoardsWriteDisabledKey, '1');
+}
+
+
+/**
+ * Returns whether board reads from Firebase are currently disabled.
+ * @returns {boolean}
+ */
+function isFirebaseBoardsReadDisabled() {
+    return localStorage.getItem(firebaseBoardsReadDisabledKey) === '1';
+}
+
+
+/**
+ * Persists a flag that disables future board read attempts.
+ */
+function disableFirebaseBoardsRead() {
+    localStorage.setItem(firebaseBoardsReadDisabledKey, '1');
+}
+
+
+/**
+ * Returns whether contact reads from Firebase are currently disabled.
+ * @returns {boolean}
+ */
+function isFirebaseContactsReadDisabled() {
+    return localStorage.getItem(firebaseContactsReadDisabledKey) === '1';
+}
+
+
+/**
+ * Persists a flag that disables future contact read attempts.
+ */
+function disableFirebaseContactsRead() {
+    localStorage.setItem(firebaseContactsReadDisabledKey, '1');
+}
+
+
 // Sends a new task to Firebase Realtime Database and returns the response payload.
 async function postTaskRequestToFirebase(task) {
+    if (isFirebaseBoardsWriteDisabled()) return null;
+
     const response = await fetch(`${firebaseBaseUrl}boards.json`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(task),
     });
+
+    if (response.status === 401 || response.status === 403) {
+        disableFirebaseBoardsWrite();
+        console.warn(`Firebase board write unauthorized (HTTP ${response.status}). Falling back to local storage only.`);
+        return null;
+    }
+
     if (!response.ok) throw new Error(`Firebase POST failed: HTTP ${response.status}`);
     return response.json();
 }
@@ -320,12 +363,14 @@ function injectSharedTemplates() {
     document.getElementById("js-header").innerHTML = getHeaderTemplate();
     document.getElementById("js-user-menu-button").innerHTML = getHeaderCircleUserTemplate();
     document.getElementById("js-header-user-menu").innerHTML = getHeaderUserMenuTemplate();
+    ensureLandscapeWarning();
+}
 
-    if (!document.getElementById('landscape-warning')) {
-        const warning = document.createElement('div');
-        warning.id = 'landscape-warning';
-        warning.classList.add('landscape-warning');
-        warning.textContent = 'Please rotate your device';
-        document.body.appendChild(warning);
-    }
+function ensureLandscapeWarning() {
+    if (document.getElementById('landscape-warning')) return;
+    const warning = document.createElement('div');
+    warning.id = 'landscape-warning';
+    warning.classList.add('landscape-warning');
+    warning.textContent = 'Please rotate your device';
+    document.body.appendChild(warning);
 }
